@@ -319,7 +319,7 @@
 <ul>
 <li><code>mf</code>: the model frame, mostly used to get the <code>terms</code> component for labelling fixed effects</li>
 <li><code>wttrms</code>: a length <code>nt</code> vector of weighted model matrices. The last two elements are <code>X</code> and <code>y</code>.</li>
-<li><code>trms</code>: an empty vector if <code>isempty(sqrtwts)</code>, otherwise the unweighted model matrices</li>
+<li><code>trms</code>: a vector of unweighted model matrices.  If <code>isempty(sqrtwts)</code> the same object as <code>wttrms</code></li>
 <li><code>Λ</code>: a length <code>nt - 2</code> vector of lower triangular matrices</li>
 <li><code>sqrtwts</code>: a length <code>n</code> vector of weights</li>
 <li><code>A</code>: an <code>nt × nt</code> symmetric matrix of matrices representing <code>hcat(Z,X,y)'hcat(Z,X,y)</code></li>
