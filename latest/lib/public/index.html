@@ -466,12 +466,12 @@
 </pre></div>
 
 
-<p>Laplace approximation to the deviance of a GLMM</p>
+<p>Laplace approximation to the deviance of a GLMM.  For a distribution that does not have a scale factor this is defined as the squared length of the conditional modes, <code>u</code>, plus the determinant of <code>Λ'Z'ZΛ + 1</code>, plus the sum of the squared deviance residuals.</p>
 <p>Args:</p>
 <ul>
 <li><code>m</code>: a <code>GeneralizedLinearMixedModel</code></li>
 </ul>
-<p>Returns:   the Laplace approximation to negative twice the log-likelihood of <code>m</code></p>
+<p>Returns:   the Laplace approximation to the deviance of <code>m</code></p>
 <p><a id='MixedModels.lmm' href='#MixedModels.lmm'>#</a>
 <strong><code>MixedModels.lmm</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
