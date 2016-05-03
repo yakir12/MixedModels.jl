@@ -72,7 +72,7 @@
         }, 
         {
             "location": "/lib/internals/", 
-            "text": "Internal Documentation\n\n\n\n\nContents\n\n\n\n\nInternal Documentation\n\n\nContents\n\n\nIndex\n\n\nTypes\n\n\nFunctions and methods\n\n\n\n\n\n\n\n\n\n\nIndex\n\n\n\n\nMixedModels.OptSummary\n\n\nMixedModels.ranef!\n\n\n\n\n\n\nTypes\n\n\n#\n\n\nMixedModels.OptSummary\n \n \nType\n.\n\n\n\n\nOptSummary\n\n\n\n\n\nSummary of an \nNLopt\n optimization\n\n\nMembers:\n\n\n\n\ninitial\n: a copy of the initial parameter values in the optimization\n\n\nfinal\n: a copy of the final parameter values from the optimization\n\n\nfmin\n: the final value of the objective\n\n\nfeval\n: the number of function evaluations\n\n\noptimizer\n: the name of the optimizer used, as a \nSymbol\n\n\n\n\n\n\nFunctions and methods\n\n\n#\n\n\nMixedModels.ranef!\n \n \nFunction\n.\n\n\n\n\nranef!(v, m, uscale)\n\n\n\n\n\nOverwrite v with the conditional modes of the random effects for \nm\n\n\nArgs:\n\n\n\n\nv\n: a \nVector\n of matrices\n\n\nm\n: a \nMixedModel\n\n\nuscale\n: a \nBool\n indicating if the random effects on the spherical (i.e. \nu\n) scale are desired\n\n\n\n\nReturns:   \nv\n, overwritten with the conditional modes", 
+            "text": "Internal Documentation\n\n\n\n\nContents\n\n\n\n\nInternal Documentation\n\n\nContents\n\n\nIndex\n\n\nTypes\n\n\nFunctions and methods\n\n\n\n\n\n\n\n\n\n\nIndex\n\n\n\n\nMixedModels.OptSummary\n\n\nMixedModels.ranef!\n\n\n\n\n\n\nTypes\n\n\n#\n\n\nMixedModels.OptSummary\n \n \nType\n.\n\n\n\n\nOptSummary\n\n\n\n\n\nSummary of an \nNLopt\n optimization\n\n\nMembers:\n\n\n\n\ninitial\n: a copy of the initial parameter values in the optimization\n\n\nfinal\n: a copy of the final parameter values from the optimization\n\n\nfmin\n: the final value of the objective\n\n\nfeval\n: the number of function evaluations\n\n\noptimizer\n: the name of the optimizer used, as a \nSymbol\n\n\n\n\n\n\nFunctions and methods\n\n\n#\n\n\nMixedModels.ranef!\n \n \nFunction\n.\n\n\n\n\nranef!(v, m, uscale, usefe)\n\n\n\n\n\nOverwrite v with the conditional modes of the random effects for \nm\n\n\nArgs:\n\n\n\n\nv\n: a \nVector\n of matrices\n\n\nm\n: a \nMixedModel\n\n\nuscale\n: \nBool\n, return the random-effects on the spherical (i.e. \nu\n) scale?\n\n\nusefe\n: \nBool\n, should the fixed-effects parameters be incorporated?\n\n\n\n\nReturns:   \nv\n, overwritten with the conditional modes", 
             "title": "Internals"
         }, 
         {
@@ -97,7 +97,7 @@
         }, 
         {
             "location": "/lib/internals/#functions-and-methods", 
-            "text": "#  MixedModels.ranef!     Function .   ranef!(v, m, uscale)  Overwrite v with the conditional modes of the random effects for  m  Args:   v : a  Vector  of matrices  m : a  MixedModel  uscale : a  Bool  indicating if the random effects on the spherical (i.e.  u ) scale are desired   Returns:    v , overwritten with the conditional modes", 
+            "text": "#  MixedModels.ranef!     Function .   ranef!(v, m, uscale, usefe)  Overwrite v with the conditional modes of the random effects for  m  Args:   v : a  Vector  of matrices  m : a  MixedModel  uscale :  Bool , return the random-effects on the spherical (i.e.  u ) scale?  usefe :  Bool , should the fixed-effects parameters be incorporated?   Returns:    v , overwritten with the conditional modes", 
             "title": "Functions and methods"
         }
     ]
