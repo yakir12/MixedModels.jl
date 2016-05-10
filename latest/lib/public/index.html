@@ -321,7 +321,7 @@
 <li><code>wttrms</code>: a length <code>nt</code> vector of weighted model matrices. The last two elements are <code>X</code> and <code>y</code>.</li>
 <li><code>trms</code>: a vector of unweighted model matrices.  If <code>isempty(sqrtwts)</code> the same object as <code>wttrms</code></li>
 <li><code>Λ</code>: a length <code>nt - 2</code> vector of lower triangular matrices</li>
-<li><code>sqrtwts</code>: a length <code>n</code> vector of weights</li>
+<li><code>sqrtwts</code>: the <a href="../{ref}"><code>Diagonal</code></a> matrix of the square roots of the case weights.  Allowed to be size 0</li>
 <li><code>A</code>: an <code>nt × nt</code> symmetric matrix of matrices representing <code>hcat(Z,X,y)'hcat(Z,X,y)</code></li>
 <li><code>R</code>: a <code>nt × nt</code> matrix of matrices - the upper Cholesky factor of <code>Λ'AΛ+I</code></li>
 <li><code>opt</code>: an <a href="../internals/#MixedModels.OptSummary"><code>OptSummary</code></a> object</li>
@@ -590,7 +590,7 @@ ranef(m, uscale)
 <p><a id='MixedModels.remat' href='#MixedModels.remat'>#</a>
 <strong><code>MixedModels.remat</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
-<div class="codehilite"><pre><span></span> remat(e,df)
+<div class="codehilite"><pre><span></span> remat(e, df)
 </pre></div>
 
 
