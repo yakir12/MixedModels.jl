@@ -43,7 +43,7 @@
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-54f87043f3.css">
+    <link rel="stylesheet" href="../../assets/stylesheets/application-0dac3e5884.css">
     
       <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
     
@@ -287,9 +287,9 @@ Fixed effects<span class="o">:</span>
 <div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">DataFrames</span><span class="p">,</span> <span class="n">MixedModels</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">ds</span>
-<span class="mi">30</span><span class="n">x2</span> <span class="n">DataFrames</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="mi">30</span><span class="n">×2</span> <span class="n">DataFrames</span><span class="o">.</span><span class="n">DataFrame</span>
 <span class="n">│</span> <span class="n">Row</span> <span class="n">│</span> <span class="n">Yield</span>  <span class="n">│</span> <span class="n">Batch</span> <span class="n">│</span>
-<span class="n">┝━━━━━┿━━━━━━━━┿━━━━━━━┥</span>
+<span class="n">├─────┼────────┼───────┤</span>
 <span class="n">│</span> <span class="mi">1</span>   <span class="n">│</span> <span class="mf">1545.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
 <span class="n">│</span> <span class="mi">2</span>   <span class="n">│</span> <span class="mf">1440.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
 <span class="n">│</span> <span class="mi">3</span>   <span class="n">│</span> <span class="mf">1440.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
@@ -312,14 +312,15 @@ Fixed effects<span class="o">:</span>
 
 
 <p><code>lmm</code> defaults to maximum likelihood estimation whereas <code>lmer</code> in <code>R</code> defaults to REML estimation.</p>
-<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">fit!</span><span class="p">(</span><span class="n">lmm</span><span class="p">(</span><span class="n">Yield</span> <span class="o">~</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">|</span> <span class="n">Batch</span><span class="p">),</span> <span class="n">ds</span><span class="p">))</span>
-<span class="n">Linear</span> <span class="n">mixed</span> <span class="n">model</span> <span class="n">fit</span> <span class="n">by</span> <span class="n">maximum</span> <span class="n">likelihood</span>
- <span class="n">logLik</span><span class="p">:</span> <span class="o">-</span><span class="mf">163.663530</span><span class="p">,</span> <span class="n">deviance</span><span class="p">:</span> <span class="mf">327.327060</span><span class="p">,</span> <span class="n">AIC</span><span class="p">:</span> <span class="mf">333.327060</span><span class="p">,</span> <span class="n">BIC</span><span class="p">:</span> <span class="mf">337.530652</span>
+<div class="codehilite"><pre><span></span><span class="n">Linear</span> <span class="n">mixed</span> <span class="n">model</span> <span class="n">fit</span> <span class="n">by</span> <span class="n">maximum</span> <span class="n">likelihood</span>
+ <span class="n">Formula</span><span class="p">:</span> <span class="n">Yield</span> <span class="o">~</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">|</span> <span class="n">Batch</span><span class="p">)</span>
+   <span class="n">logLik</span>    <span class="o">-</span><span class="mi">2</span> <span class="n">logLik</span>     <span class="n">AIC</span>        <span class="n">BIC</span>    
+  <span class="o">-</span><span class="mf">163.66353</span>  <span class="mf">327.32706</span>  <span class="mf">333.32706</span>  <span class="mf">337.53065</span>
 
 <span class="n">Variance</span> <span class="n">components</span><span class="p">:</span>
-           <span class="n">Variance</span>  <span class="n">Std</span><span class="o">.</span><span class="n">Dev</span><span class="o">.</span>
- <span class="n">Batch</span>    <span class="mf">1388.3332</span> <span class="mf">37.260344</span>
- <span class="n">Residual</span> <span class="mf">2451.2500</span> <span class="mf">49.510100</span>
+              <span class="n">Column</span>    <span class="n">Variance</span>  <span class="n">Std</span><span class="o">.</span><span class="n">Dev</span><span class="o">.</span>
+ <span class="n">Batch</span>    <span class="p">(</span><span class="n">Intercept</span><span class="p">)</span>  <span class="mf">1388.3332</span> <span class="mf">37.260344</span>
+ <span class="n">Residual</span>              <span class="mf">2451.2500</span> <span class="mf">49.510100</span>
  <span class="n">Number</span> <span class="n">of</span> <span class="n">obs</span><span class="p">:</span> <span class="mi">30</span><span class="p">;</span> <span class="n">levels</span> <span class="n">of</span> <span class="n">grouping</span> <span class="n">factors</span><span class="p">:</span> <span class="mi">6</span>
 
   <span class="n">Fixed</span><span class="o">-</span><span class="n">effects</span> <span class="n">parameters</span><span class="p">:</span>
@@ -371,12 +372,12 @@ Fixed effects<span class="o">:</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">ranef</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
 <span class="mi">1</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="p">{</span><span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">},</span><span class="mi">1</span><span class="p">}:</span>
- <span class="mi">1</span><span class="n">x6</span> <span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">}:</span>
+ <span class="mi">1</span><span class="n">×6</span> <span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">}:</span>
  <span class="o">-</span><span class="mf">16.6282</span>  <span class="mf">0.369516</span>  <span class="mf">26.9747</span>  <span class="o">-</span><span class="mf">21.8014</span>  <span class="mf">53.5798</span>  <span class="o">-</span><span class="mf">42.4943</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">ranef</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>  <span class="c"># on the u scale</span>
 <span class="mi">1</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="p">{</span><span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">},</span><span class="mi">1</span><span class="p">}:</span>
- <span class="mi">1</span><span class="n">x6</span> <span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">}:</span>
+ <span class="mi">1</span><span class="n">×6</span> <span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">}:</span>
  <span class="o">-</span><span class="mf">22.0949</span>  <span class="mf">0.490999</span>  <span class="mf">35.8429</span>  <span class="o">-</span><span class="mf">28.9689</span>  <span class="mf">71.1948</span>  <span class="o">-</span><span class="mf">56.4648</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">deviance</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
@@ -448,9 +449,9 @@ Fixed effects<span class="o">:</span>
 
 <p>Models with vector-valued random effects can be fit</p>
 <div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="n">slp</span>
-<span class="mi">180</span><span class="n">x3</span> <span class="n">DataFrames</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="mi">180</span><span class="n">×3</span> <span class="n">DataFrames</span><span class="o">.</span><span class="n">DataFrame</span>
 <span class="n">│</span> <span class="n">Row</span> <span class="n">│</span> <span class="n">Reaction</span> <span class="n">│</span> <span class="n">Days</span> <span class="n">│</span> <span class="n">Subject</span> <span class="n">│</span>
-<span class="n">┝━━━━━┿━━━━━━━━━━┿━━━━━━┿━━━━━━━━━┥</span>
+<span class="n">├─────┼──────────┼──────┼─────────┤</span>
 <span class="n">│</span> <span class="mi">1</span>   <span class="n">│</span> <span class="mf">249.56</span>   <span class="n">│</span> <span class="mi">0</span>    <span class="n">│</span> <span class="mi">1</span>       <span class="n">│</span>
 <span class="n">│</span> <span class="mi">2</span>   <span class="n">│</span> <span class="mf">258.705</span>  <span class="n">│</span> <span class="mi">1</span>    <span class="n">│</span> <span class="mi">1</span>       <span class="n">│</span>
 <span class="n">│</span> <span class="mi">3</span>   <span class="n">│</span> <span class="mf">250.801</span>  <span class="n">│</span> <span class="mi">2</span>    <span class="n">│</span> <span class="mi">1</span>       <span class="n">│</span>
@@ -472,19 +473,21 @@ Fixed effects<span class="o">:</span>
 
 <span class="n">julia</span><span class="o">&gt;</span> <span class="n">fm3</span> <span class="o">=</span> <span class="n">fit!</span><span class="p">(</span><span class="n">lmm</span><span class="p">(</span><span class="n">Reaction</span> <span class="o">~</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">Days</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">Days</span><span class="o">|</span><span class="n">Subject</span><span class="p">),</span> <span class="n">slp</span><span class="p">))</span>
 <span class="n">Linear</span> <span class="n">mixed</span> <span class="n">model</span> <span class="n">fit</span> <span class="n">by</span> <span class="n">maximum</span> <span class="n">likelihood</span>
- <span class="n">logLik</span><span class="p">:</span> <span class="o">-</span><span class="mf">875.969672</span><span class="p">,</span> <span class="n">deviance</span><span class="p">:</span> <span class="mf">1751.939344</span><span class="p">,</span> <span class="n">AIC</span><span class="p">:</span> <span class="mf">1763.939344</span><span class="p">,</span> <span class="n">BIC</span><span class="p">:</span> <span class="mf">1783.097086</span>
+ <span class="n">Formula</span><span class="p">:</span> <span class="n">Reaction</span> <span class="o">~</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">Days</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Days</span><span class="p">)</span> <span class="o">|</span> <span class="n">Subject</span><span class="p">)</span>
+  <span class="n">logLik</span>    <span class="o">-</span><span class="mi">2</span> <span class="n">logLik</span>     <span class="n">AIC</span>        <span class="n">BIC</span>
+ <span class="o">-</span><span class="mf">875.96967</span> <span class="mf">1751.93934</span> <span class="mf">1763.93934</span> <span class="mf">1783.09709</span>
 
 <span class="n">Variance</span> <span class="n">components</span><span class="p">:</span>
-           <span class="n">Variance</span>  <span class="n">Std</span><span class="o">.</span><span class="n">Dev</span><span class="o">.</span>   <span class="n">Corr</span><span class="o">.</span>
- <span class="n">Subject</span>  <span class="mf">565.51066</span> <span class="mf">23.780468</span>
-           <span class="mf">32.68212</span>  <span class="mf">5.716828</span>  <span class="mf">0.08</span>
- <span class="n">Residual</span> <span class="mf">654.94145</span> <span class="mf">25.591824</span>
+              <span class="n">Column</span>    <span class="n">Variance</span>  <span class="n">Std</span><span class="o">.</span><span class="n">Dev</span><span class="o">.</span>   <span class="n">Corr</span><span class="o">.</span>
+ <span class="n">Subject</span>  <span class="p">(</span><span class="n">Intercept</span><span class="p">)</span>  <span class="mf">565.51066</span> <span class="mf">23.780468</span>
+          <span class="n">Days</span>          <span class="mf">32.68212</span>  <span class="mf">5.716828</span>  <span class="mf">0.08</span>
+ <span class="n">Residual</span> <span class="n">Days</span>         <span class="mf">654.94145</span> <span class="mf">25.591824</span>
  <span class="n">Number</span> <span class="n">of</span> <span class="n">obs</span><span class="p">:</span> <span class="mi">180</span><span class="p">;</span> <span class="n">levels</span> <span class="n">of</span> <span class="n">grouping</span> <span class="n">factors</span><span class="p">:</span> <span class="mi">18</span>
 
   <span class="n">Fixed</span><span class="o">-</span><span class="n">effects</span> <span class="n">parameters</span><span class="p">:</span>
-             <span class="n">Estimate</span> <span class="n">Std</span><span class="o">.</span><span class="n">Error</span> <span class="n">z</span> <span class="n">value</span>
-<span class="p">(</span><span class="n">Intercept</span><span class="p">)</span>   <span class="mf">251.405</span>   <span class="mf">6.63226</span> <span class="mf">37.9064</span>
-<span class="n">Days</span>          <span class="mf">10.4673</span>   <span class="mf">1.50224</span> <span class="mf">6.96781</span>
+             <span class="n">Estimate</span> <span class="n">Std</span><span class="o">.</span><span class="n">Error</span> <span class="n">z</span> <span class="n">value</span> <span class="n">P</span><span class="p">(</span><span class="o">&gt;|</span><span class="n">z</span><span class="o">|</span><span class="p">)</span>
+<span class="p">(</span><span class="n">Intercept</span><span class="p">)</span>   <span class="mf">251.405</span>   <span class="mf">6.63226</span> <span class="mf">37.9064</span>  <span class="o">&lt;</span><span class="mf">1e-99</span>
+<span class="n">Days</span>          <span class="mf">10.4673</span>   <span class="mf">1.50224</span> <span class="mf">6.96781</span>  <span class="o">&lt;</span><span class="mf">1e-11</span>
 </pre></div>
           <aside class="copyright" role="note">
             
