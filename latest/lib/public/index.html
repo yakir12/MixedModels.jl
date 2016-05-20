@@ -409,16 +409,11 @@
 <p>Returns the estimate of the fixed-effects parameter vector.</p>
 <p><a id='MixedModels.LaplaceDeviance' href='#MixedModels.LaplaceDeviance'>#</a>
 <strong><code>MixedModels.LaplaceDeviance</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>LaplaceDeviance(m)
+<div class="codehilite"><pre><span></span>LaplaceDeviance(m::GeneralizedLinearMixedModel)
 </pre></div>
 
 
 <p>Laplace approximation to the deviance of a GLMM.  For a distribution that does not have a scale factor this is defined as the squared length of the conditional modes, <code>u</code>, plus the determinant of <code>Λ'Z'ZΛ + 1</code>, plus the sum of the squared deviance residuals.</p>
-<p>Args:</p>
-<ul>
-<li><code>m</code>: a <code>GeneralizedLinearMixedModel</code></li>
-</ul>
-<p>Returns:   the Laplace approximation to the deviance of <code>m</code></p>
 <p><a id='MixedModels.lmm' href='#MixedModels.lmm'>#</a>
 <strong><code>MixedModels.lmm</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>lmm(m::MixedModel)
@@ -443,11 +438,15 @@
 <li><code>m</code>: a <code>MixedModel</code></li>
 </ul>
 <p>Returns:   A <code>Vector</code> of lower bounds on the covariance parameter vector <code>m[:θ]</code></p>
+<div class="codehilite"><pre><span></span>lowerbd{T}(A::LowerTriangular{T,Matrix{T}})
+</pre></div>
+
+
 <p>lower bounds on the parameters (elements in the lower triangle)</p>
 <p><a id='StatsBase.model_response-Tuple{MixedModels.LinearMixedModel{T<:AbstractFloat}}' href='#StatsBase.model_response-Tuple{MixedModels.LinearMixedModel{T<:AbstractFloat}}'>#</a>
 <strong><code>StatsBase.model_response</code></strong> &mdash; <em>Method</em>.</p>
-<p>extract the response (as a reference)</p>
-<p><a id='StatsBase.nobs-Tuple{MixedModels.LinearMixedModel{T<:AbstractFloat}}' href='#StatsBase.nobs-Tuple{MixedModels.LinearMixedModel{T<:AbstractFloat}}'>#</a>
+<p>nothing
+<a id='StatsBase.nobs-Tuple{MixedModels.LinearMixedModel{T<:AbstractFloat}}' href='#StatsBase.nobs-Tuple{MixedModels.LinearMixedModel{T<:AbstractFloat}}'>#</a>
 <strong><code>StatsBase.nobs</code></strong> &mdash; <em>Method</em>.</p>
 <p>nobs(obj::StatisticalModel)</p>
 <p>Returns the number of independent observations on which the model was fitted. Be careful when using this information, as the definition of an independent observation may vary depending on the model, on the format used to pass the data, on the sampling plan (if specified), etc.</p>
@@ -467,17 +466,11 @@
 <p>The penalized residual sum-of-squares.</p>
 <p><a id='MixedModels.pirls!' href='#MixedModels.pirls!'>#</a>
 <strong><code>MixedModels.pirls!</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>pirls!(m)
+<div class="codehilite"><pre><span></span>pirls!(m::GeneralizedLinearMixedModel)
 </pre></div>
 
 
-<p>Use Penalized Iteratively Reweighted Least Squares (PIRLS) to determine the conditional modes of the random effects</p>
-<p>Args:</p>
-<ul>
-<li><code>m</code>: a <code>GeneralizedLinearMixedModel</code></li>
-</ul>
-<p>Returns:   the updated model <code>m</code></p>
-<p>Note:   On entry the values of <code>m.u₀</code> and <code>m.devold</code> should correspond.   One safe approach is to zero out <code>m.u₀</code> and evaluate devold from fixed-effects only.</p>
+<p>Use Penalized Iteratively Reweighted Least Squares (PIRLS) to determine the conditional modes of the random effects.</p>
 <p><a id='MixedModels.ranef' href='#MixedModels.ranef'>#</a>
 <strong><code>MixedModels.ranef</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>ranef(m)
