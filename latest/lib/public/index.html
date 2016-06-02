@@ -423,15 +423,11 @@
 <p>Create a <a href="./#MixedModels.LinearMixedModel"><code>LinearMixedModel</code></a> from <code>f</code>, which contains both fixed-effects terms and random effects, and <code>fr</code>. The return value is ready to be <code>fit!</code> but has not yet been fit.</p>
 <p><a id='MixedModels.lowerbd' href='#MixedModels.lowerbd'>#</a>
 <strong><code>MixedModels.lowerbd</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>lowerbd(m)
+<div class="codehilite"><pre><span></span>lowerbd(m::LinearMixedModel)
 </pre></div>
 
 
-<p>Args:</p>
-<ul>
-<li><code>m</code>: a <code>MixedModel</code></li>
-</ul>
-<p>Returns:   A <code>Vector</code> of lower bounds on the covariance parameter vector <code>m[:θ]</code></p>
+<p>The <code>Vector</code> of lower bounds on the covariance parameter vector <code>m[:θ]</code></p>
 <div class="codehilite"><pre><span></span>lowerbd{T}(A::LowerTriangular{T,Matrix{T}})
 </pre></div>
 

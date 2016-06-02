@@ -305,18 +305,11 @@
 <h2 id="functions-and-methods">Functions and methods</h2>
 <p><a id='MixedModels.ranef!' href='#MixedModels.ranef!'>#</a>
 <strong><code>MixedModels.ranef!</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>ranef!(v, m, uscale)
+<div class="codehilite"><pre><span></span>ranef!{T}(v::Vector{Matrix{T}}, m::MixedModel{T}, uscale::Bool = false)
 </pre></div>
 
 
-<p>Overwrite v with the conditional modes of the random effects for <code>m</code></p>
-<p>Args:</p>
-<ul>
-<li><code>v</code>: a <code>Vector</code> of matrices</li>
-<li><code>m</code>: a <code>MixedModel</code></li>
-<li><code>uscale</code>: <code>Bool</code>, return the random-effects on the spherical (i.e. <code>u</code>) scale?</li>
-</ul>
-<p>Returns:   <code>v</code>, overwritten with the conditional modes</p>
+<p>Overwrite <code>v</code> with the conditional modes of the random effects for <code>m</code>.  If <code>uscale</code> is <code>true</code> the random effects are on the spherical (i.e. <code>u</code>) scale, otherwise on the original scale</p>
           <aside class="copyright" role="note">
             
             Documentation built with
