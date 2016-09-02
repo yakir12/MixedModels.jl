@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/", 
-            "text": "MixedModels.jl Documentation\n\n\nFitting and examining mixed-effects models\n\n\n\n\nManual Outline\n\n\n\n\nFitting linear mixed-effects models\n\n\nA simple example\n\n\nMore substantial examples\n\n\n\n\n\n\n\n\n\n\nLibrary Outline\n\n\n\n\nPublic Documentation\n\n\nMixedModels\n\n\n\n\n\n\n\n\n\n\nIndex\n\n\n\n\nMixedModels.GeneralizedLinearMixedModel\n\n\nMixedModels.LinearMixedModel\n\n\nMixedModels.OptSummary\n\n\nMixedModels.ReMat\n\n\nMixedModels.ScalarReMat\n\n\nMixedModels.VarCorr\n\n\nMixedModels.VectorReMat\n\n\nBase.LinAlg.cond\n\n\nBase.std\n\n\nMixedModels.LaplaceDeviance\n\n\nMixedModels.bootstrap!\n\n\nMixedModels.cfactor!\n\n\nMixedModels.fixef\n\n\nMixedModels.get\u03b8\n\n\nMixedModels.glmm\n\n\nMixedModels.lmm\n\n\nMixedModels.lmm\n\n\nMixedModels.lowerbd\n\n\nMixedModels.lowerbd\n\n\nMixedModels.objective\n\n\nMixedModels.pirls!\n\n\nMixedModels.pwrss\n\n\nMixedModels.ranef\n\n\nMixedModels.refit!\n\n\nMixedModels.remat\n\n\nMixedModels.sdest\n\n\nMixedModels.set\u03b8!\n\n\nMixedModels.simulate!\n\n\nMixedModels.varest\n\n\nStatsBase.fit!\n\n\nStatsBase.fit!\n\n\nStatsBase.vcov", 
+            "text": "MixedModels.jl Documentation\n\n\nFitting and examining mixed-effects models\n\n\n\n\nManual Outline\n\n\n\n\nFitting linear mixed-effects models\n\n\nA simple example\n\n\nMore substantial examples\n\n\n\n\n\n\nParametric bootstrap for linear mixed-effects models\n\n\nArguments to the bootstrap! function\n\n\n\n\n\n\n\n\n\n\nLibrary Outline\n\n\n\n\nPublic Documentation\n\n\nMixedModels\n\n\n\n\n\n\n\n\n\n\nIndex\n\n\n\n\nMixedModels.GeneralizedLinearMixedModel\n\n\nMixedModels.LinearMixedModel\n\n\nMixedModels.OptSummary\n\n\nMixedModels.ReMat\n\n\nMixedModels.ScalarReMat\n\n\nMixedModels.VarCorr\n\n\nMixedModels.VectorReMat\n\n\nBase.LinAlg.cond\n\n\nBase.std\n\n\nMixedModels.LaplaceDeviance\n\n\nMixedModels.bootstrap!\n\n\nMixedModels.cfactor!\n\n\nMixedModels.fixef\n\n\nMixedModels.get\u03b8\n\n\nMixedModels.glmm\n\n\nMixedModels.lmm\n\n\nMixedModels.lmm\n\n\nMixedModels.lowerbd\n\n\nMixedModels.lowerbd\n\n\nMixedModels.objective\n\n\nMixedModels.pirls!\n\n\nMixedModels.pwrss\n\n\nMixedModels.ranef\n\n\nMixedModels.refit!\n\n\nMixedModels.remat\n\n\nMixedModels.sdest\n\n\nMixedModels.set\u03b8!\n\n\nMixedModels.simulate!\n\n\nMixedModels.varest\n\n\nStatsBase.fit!\n\n\nStatsBase.fit!\n\n\nStatsBase.vcov", 
             "title": "Home"
         }, 
         {
@@ -12,7 +12,7 @@
         }, 
         {
             "location": "/#manual-outline", 
-            "text": "Fitting linear mixed-effects models  A simple example  More substantial examples", 
+            "text": "Fitting linear mixed-effects models  A simple example  More substantial examples    Parametric bootstrap for linear mixed-effects models  Arguments to the bootstrap! function", 
             "title": "Manual Outline"
         }, 
         {
