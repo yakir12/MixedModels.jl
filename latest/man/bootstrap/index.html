@@ -204,8 +204,14 @@
         <ul>
           
             <li class="anchor">
-              <a title="Arguments to the bootstrap! function" href="#arguments-to-the-bootstrap-function">
-                Arguments to the bootstrap! function
+              <a title="The parametric bootstrap" href="#the-parametric-bootstrap">
+                The parametric bootstrap
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Using the bootstrap! function" href="#using-the-bootstrap-function">
+                Using the bootstrap! function
               </a>
             </li>
           
@@ -249,25 +255,61 @@
           
           <p><a id='Parametric-bootstrap-for-linear-mixed-effects-models-1'></a></p>
 <h1 id="parametric-bootstrap-for-linear-mixed-effects-models">Parametric bootstrap for linear mixed-effects models</h1>
-<p>Julia is well-suited to implementing bootstrapping and other simulation-based methods for statistical models.  The <code>bootstrap!</code> function implements a parametric bootstrap for linear mixed-effects models in an efficient way, assuming that the results of interest from each simulated response vector can be incorporated into a vector of floating-point values.</p>
-<p><a id='Arguments-to-the-bootstrap!-function-1'></a></p>
-<h2 id="arguments-to-the-bootstrap-function">Arguments to the bootstrap! function</h2>
-<p>As indicated by the name, <code>bootstrap!</code> is a mutating function.  It modifies its first argument, which is an <code>k × n</code> matrix where <code>n</code> is the number of replications and <code>k</code> is the length of the vector of results to be saved from each replication.  The second argument is <code>m</code>, the model to bootstrap, and the third is a mutating function of a vector of length <code>k</code> and the model, <code>m</code>.  Technically, the model <code>m</code> is also modified in the function but it should be restored to its original state before <code>bootstrap!</code> returns.</p>
-<p><a id='An-example-1'></a></p>
-<h3 id="an-example">An example</h3>
-<p>Consider using the parametric bootstrap to evaluate the distribution of the estimates of the variance components in the simple model</p>
-<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">DataFrames</span><span class="p">,</span> <span class="n">MixedModels</span>
+<p>Julia is well-suited to implementing bootstrapping and other simulation-based methods for statistical models. The <code>bootstrap!</code> function in the <a href="https://github.com/dmbates/MixedModels.jl">MixedModels package</a> provides an efficient parametric bootstrap for linear mixed-effects models, assuming that the results of interest from each simulated response vector can be incorporated into a vector of floating-point values.</p>
+<p><a id='The-parametric-bootstrap-1'></a></p>
+<h2 id="the-parametric-bootstrap">The parametric bootstrap</h2>
+<p><a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">Bootstrapping</a> is a family of procedures for generating sample values of a statistic, allowing for visualization of the distribution of the statistic or for inference from this sample of values.</p>
+<p>A <em>parametric bootstrap</em> is used with a parametric model, <code>m</code>, that has been fitted to data. The procedure is to simulate <code>n</code> response vectors from <code>m</code> using the estimated parameter values and refit <code>m</code> to these responses in turn, accumulating the statistics of interest at each iteration.</p>
+<p>The parameters of a linear mixed-effects model as fit by the <code>lmm</code> function are the fixed-effects parameters, <code>β</code>, the standard deviation, <code>σ</code>, of the per-observation noise, and the covariance parameter, <code>θ</code>, that defines the variance-covariance matrices of the random effects.</p>
+<p>For example, a simple linear mixed-effects model for the <code>Dyestuff</code> data in the <a href="http://github.com/lme4/lme4"><code>lme4</code></a> package for <a href="https://www.r-project.org"><code>R</code></a> is fit by</p>
+<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">DataFrames</span><span class="p">,</span> <span class="n">Gadfly</span><span class="p">,</span> <span class="n">MixedModels</span>
+</pre></div>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">include</span><span class="p">(</span><span class="n">Pkg</span><span class="o">.</span><span class="n">dir</span><span class="p">(</span><span class="s">&quot;MixedModels&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;data.jl&quot;</span><span class="p">));</span>
 
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">m1</span> <span class="o">=</span> <span class="n">fit!</span><span class="p">(</span><span class="n">lmm</span><span class="p">(</span><span class="n">Yield</span> <span class="o">~</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">|</span> <span class="n">Batch</span><span class="p">),</span> <span class="n">ds</span><span class="p">))</span>
+<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="n">show</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>   <span class="c"># Dyestuff data set30×2 DataFrames.DataFrame</span>
+<span class="n">│</span> <span class="n">Row</span> <span class="n">│</span> <span class="n">Yield</span>  <span class="n">│</span> <span class="n">Batch</span> <span class="n">│</span>
+<span class="n">├─────┼────────┼───────┤</span>
+<span class="n">│</span> <span class="mi">1</span>   <span class="n">│</span> <span class="mf">1545.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">2</span>   <span class="n">│</span> <span class="mf">1440.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">3</span>   <span class="n">│</span> <span class="mf">1440.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">4</span>   <span class="n">│</span> <span class="mf">1520.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">5</span>   <span class="n">│</span> <span class="mf">1580.0</span> <span class="n">│</span> <span class="sc">&#39;A&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">6</span>   <span class="n">│</span> <span class="mf">1540.0</span> <span class="n">│</span> <span class="sc">&#39;B&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">7</span>   <span class="n">│</span> <span class="mf">1555.0</span> <span class="n">│</span> <span class="sc">&#39;B&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">8</span>   <span class="n">│</span> <span class="mf">1490.0</span> <span class="n">│</span> <span class="sc">&#39;B&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">9</span>   <span class="n">│</span> <span class="mf">1560.0</span> <span class="n">│</span> <span class="sc">&#39;B&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">10</span>  <span class="n">│</span> <span class="mf">1495.0</span> <span class="n">│</span> <span class="sc">&#39;B&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">11</span>  <span class="n">│</span> <span class="mf">1595.0</span> <span class="n">│</span> <span class="sc">&#39;C&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">12</span>  <span class="n">│</span> <span class="mf">1550.0</span> <span class="n">│</span> <span class="sc">&#39;C&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">13</span>  <span class="n">│</span> <span class="mf">1605.0</span> <span class="n">│</span> <span class="sc">&#39;C&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">14</span>  <span class="n">│</span> <span class="mf">1510.0</span> <span class="n">│</span> <span class="sc">&#39;C&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">15</span>  <span class="n">│</span> <span class="mf">1560.0</span> <span class="n">│</span> <span class="sc">&#39;C&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">16</span>  <span class="n">│</span> <span class="mf">1445.0</span> <span class="n">│</span> <span class="sc">&#39;D&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">17</span>  <span class="n">│</span> <span class="mf">1440.0</span> <span class="n">│</span> <span class="sc">&#39;D&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">18</span>  <span class="n">│</span> <span class="mf">1595.0</span> <span class="n">│</span> <span class="sc">&#39;D&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">19</span>  <span class="n">│</span> <span class="mf">1465.0</span> <span class="n">│</span> <span class="sc">&#39;D&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">20</span>  <span class="n">│</span> <span class="mf">1545.0</span> <span class="n">│</span> <span class="sc">&#39;D&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">21</span>  <span class="n">│</span> <span class="mf">1595.0</span> <span class="n">│</span> <span class="sc">&#39;E&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">22</span>  <span class="n">│</span> <span class="mf">1630.0</span> <span class="n">│</span> <span class="sc">&#39;E&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">23</span>  <span class="n">│</span> <span class="mf">1515.0</span> <span class="n">│</span> <span class="sc">&#39;E&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">24</span>  <span class="n">│</span> <span class="mf">1635.0</span> <span class="n">│</span> <span class="sc">&#39;E&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">25</span>  <span class="n">│</span> <span class="mf">1625.0</span> <span class="n">│</span> <span class="sc">&#39;E&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">26</span>  <span class="n">│</span> <span class="mf">1520.0</span> <span class="n">│</span> <span class="sc">&#39;F&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">27</span>  <span class="n">│</span> <span class="mf">1455.0</span> <span class="n">│</span> <span class="sc">&#39;F&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">28</span>  <span class="n">│</span> <span class="mf">1450.0</span> <span class="n">│</span> <span class="sc">&#39;F&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">29</span>  <span class="n">│</span> <span class="mf">1480.0</span> <span class="n">│</span> <span class="sc">&#39;F&#39;</span>   <span class="n">│</span>
+<span class="n">│</span> <span class="mi">30</span>  <span class="n">│</span> <span class="mf">1445.0</span> <span class="n">│</span> <span class="sc">&#39;F&#39;</span>   <span class="n">│</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="n">m1</span> <span class="o">=</span> <span class="n">fit!</span><span class="p">(</span><span class="n">lmm</span><span class="p">(</span><span class="n">Yield</span> <span class="o">~</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">|</span> <span class="n">Batch</span><span class="p">),</span> <span class="n">ds</span><span class="p">))</span>  
 <span class="n">Linear</span> <span class="n">mixed</span> <span class="n">model</span> <span class="n">fit</span> <span class="n">by</span> <span class="n">maximum</span> <span class="n">likelihood</span>
  <span class="n">Formula</span><span class="p">:</span> <span class="n">Yield</span> <span class="o">~</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">|</span> <span class="n">Batch</span><span class="p">)</span>
-   <span class="n">logLik</span>    <span class="o">-</span><span class="mi">2</span> <span class="n">logLik</span>     <span class="n">AIC</span>        <span class="n">BIC</span>    
-  <span class="o">-</span><span class="mf">163.66353</span>  <span class="mf">327.32706</span>  <span class="mf">333.32706</span>  <span class="mf">337.53065</span>
+  <span class="n">logLik</span>    <span class="o">-</span><span class="mi">2</span> <span class="n">logLik</span>     <span class="n">AIC</span>        <span class="n">BIC</span>    
+ <span class="o">-</span><span class="mf">163.66353</span>  <span class="mf">327.32706</span>  <span class="mf">333.32706</span>  <span class="mf">337.53065</span>
 
 <span class="n">Variance</span> <span class="n">components</span><span class="p">:</span>
-              <span class="n">Column</span>    <span class="n">Variance</span>  <span class="n">Std</span><span class="o">.</span><span class="n">Dev</span><span class="o">.</span>
+              <span class="n">Column</span>    <span class="n">Variance</span>  <span class="n">Std</span><span class="o">.</span><span class="n">Dev</span><span class="o">.</span> 
  <span class="n">Batch</span>    <span class="p">(</span><span class="n">Intercept</span><span class="p">)</span>  <span class="mf">1388.3334</span> <span class="mf">37.260346</span>
  <span class="n">Residual</span>              <span class="mf">2451.2500</span> <span class="mf">49.510100</span>
  <span class="n">Number</span> <span class="n">of</span> <span class="n">obs</span><span class="p">:</span> <span class="mi">30</span><span class="p">;</span> <span class="n">levels</span> <span class="n">of</span> <span class="n">grouping</span> <span class="n">factors</span><span class="p">:</span> <span class="mi">6</span>
@@ -275,30 +317,39 @@
   <span class="n">Fixed</span><span class="o">-</span><span class="n">effects</span> <span class="n">parameters</span><span class="p">:</span>
              <span class="n">Estimate</span> <span class="n">Std</span><span class="o">.</span><span class="n">Error</span> <span class="n">z</span> <span class="n">value</span> <span class="n">P</span><span class="p">(</span><span class="o">&gt;|</span><span class="n">z</span><span class="o">|</span><span class="p">)</span>
 <span class="p">(</span><span class="n">Intercept</span><span class="p">)</span>    <span class="mf">1527.5</span>   <span class="mf">17.6946</span>  <span class="mf">86.326</span>  <span class="o">&lt;</span><span class="mf">1e-99</span>
-
-
-<span class="n">julia</span><span class="o">&gt;</span> <span class="k">function</span><span class="nf"> f</span><span class="o">!</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
-           <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">σ̂²</span> <span class="o">=</span> <span class="n">varest</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
-           <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">σ̂²</span> <span class="o">*</span> <span class="n">abs2</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">Λ</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-           <span class="n">v</span>
-       <span class="k">end</span>
-<span class="n">f!</span> <span class="p">(</span><span class="n">generic</span> <span class="k">function</span><span class="nf"> with</span> <span class="mi">1</span> <span class="n">method</span><span class="p">)</span>
-
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">f!</span><span class="p">(</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">m1</span><span class="p">)</span>
-<span class="mi">2</span><span class="o">-</span><span class="n">element</span> <span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">}:</span>
- <span class="mf">2451.25</span>
- <span class="mf">1388.33</span>
-
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">srand</span><span class="p">(</span><span class="mi">1234321</span><span class="p">);</span>
-
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">sigmas</span> <span class="o">=</span> <span class="n">bootstrap!</span><span class="p">(</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100_000</span><span class="p">),</span> <span class="n">m</span><span class="p">,</span> <span class="n">f!</span><span class="p">)</span>
-<span class="mi">2</span><span class="n">×100000</span> <span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">}:</span>
- <span class="mf">4547.01</span>   <span class="mf">2302.38</span>   <span class="mf">2513.48</span>   <span class="mf">2832.77</span>  <span class="n">…</span>  <span class="mf">3735.86</span>  <span class="mf">1617.55</span>  <span class="mf">2624.33</span>   <span class="mf">1473.15</span>
-  <span class="mf">204.834</span>   <span class="mf">653.688</span>   <span class="mf">473.595</span>  <span class="mf">1685.59</span>        <span class="mf">0.0</span>   <span class="mf">1324.83</span>   <span class="mf">287.775</span>  <span class="mf">1826.86</span>
-
-<span class="n">julia</span><span class="o">&gt;</span> <span class="n">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">Compat</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">sigmas</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:))</span>  <span class="c"># near zero estimates of σ₁ </span>
-<span class="mi">10090</span>
 </pre></div>
+
+
+<p><a id='Using-the-bootstrap!-function-1'></a></p>
+<h2 id="using-the-bootstrap-function">Using the <code>bootstrap!</code> function</h2>
+<p>This quick explanation is provided for those who only wish to use the <code>bootstrap!</code> method and do not need detailed explanations of how it works. The three arguments to <code>bootstrap!</code> are the matrix that will be overwritten with the results, the model to bootstrap, and a function that overwrites a vector with the results of interest from the model.</p>
+<p>Suppose the objective is to obtain 100,000 parametric bootstrap samples of the estimates of the "variance components", <code>σ²</code> and <code>σ₁²</code>, in this model.  In many implementations of mixed-effects models the estimate of <code>σ₁²</code>, the variance of the scalar random effects, is reported along with a standard error, as if the estimator could be assumed to have a Gaussian distribution. Is this a reasonable assumption?</p>
+<p>A suitable function to save the results is</p>
+<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="k">function</span><span class="nf"> saveresults</span><span class="o">!</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">varest</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">abs2</span><span class="p">(</span><span class="n">getθ</span><span class="p">(</span><span class="n">m</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">end</span>
+<span class="n">saveresults!</span> <span class="p">(</span><span class="n">generic</span> <span class="k">function</span><span class="nf"> with</span> <span class="mi">1</span> <span class="n">method</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The <code>varest</code> extractor function returns the estimate of <code>σ²</code>.  As seen above, the estimate of the <code>σ₁</code> is the product of <code>Θ</code> and the estimate of <code>σ</code>.  The expression <code>abs2(getΘ(m)[1])</code> evaluates to <code>Θ²</code>. The <code>[1]</code> is necessary because the value returned by <code>getθ</code> is a vector and a scalar is needed here.</p>
+<p>As with any simulation-based method, it is advisable to set the random number seed before calling <code>bootstrap!</code> for reproducibility.</p>
+<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="n">srand</span><span class="p">(</span><span class="mi">1234321</span><span class="p">);</span>
+<span class="n">MersenneTwister</span><span class="p">(</span><span class="n">Base</span><span class="o">.</span><span class="n">dSFMT</span><span class="o">.</span><span class="n">DSFMT_state</span><span class="p">(</span><span class="kt">Int32</span><span class="p">[</span><span class="o">-</span><span class="mi">1066020669</span><span class="p">,</span><span class="mi">1073631810</span><span class="p">,</span><span class="mi">397127531</span><span class="p">,</span><span class="mi">1072701603</span><span class="p">,</span><span class="o">-</span><span class="mi">312796895</span><span class="p">,</span><span class="mi">1073626997</span><span class="p">,</span><span class="mi">1020815149</span><span class="p">,</span><span class="mi">1073320576</span><span class="p">,</span><span class="mi">650048908</span><span class="p">,</span><span class="mi">1073512247</span>  <span class="n">…</span>  <span class="o">-</span><span class="mi">352178910</span><span class="p">,</span><span class="mi">1073735534</span><span class="p">,</span><span class="mi">1816227101</span><span class="p">,</span><span class="mi">1072823316</span><span class="p">,</span><span class="o">-</span><span class="mi">1468787611</span><span class="p">,</span><span class="o">-</span><span class="mi">2121692099</span><span class="p">,</span><span class="mi">358864500</span><span class="p">,</span><span class="o">-</span><span class="mi">310934288</span><span class="p">,</span><span class="mi">382</span><span class="p">,</span><span class="mi">0</span><span class="p">]),[</span><span class="mf">1.09857</span><span class="p">,</span><span class="mf">1.52278</span><span class="p">,</span><span class="mf">1.29205</span><span class="p">,</span><span class="mf">1.58248</span><span class="p">,</span><span class="mf">1.76821</span><span class="p">,</span><span class="mf">1.12729</span><span class="p">,</span><span class="mf">1.91324</span><span class="p">,</span><span class="mf">1.13434</span><span class="p">,</span><span class="mf">1.86838</span><span class="p">,</span><span class="mf">1.19769</span>  <span class="n">…</span>  <span class="mf">1.91228</span><span class="p">,</span><span class="mf">1.82615</span><span class="p">,</span><span class="mf">1.801</span><span class="p">,</span><span class="mf">1.58645</span><span class="p">,</span><span class="mf">1.48315</span><span class="p">,</span><span class="mf">1.6551</span><span class="p">,</span><span class="mf">1.08701</span><span class="p">,</span><span class="mf">1.22284</span><span class="p">,</span><span class="mf">1.42061</span><span class="p">,</span><span class="mf">1.41889</span><span class="p">],</span><span class="mi">382</span><span class="p">,</span><span class="n">UInt32</span><span class="p">[</span><span class="mh">0x0012d591</span><span class="p">])</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="n">bootstrap!</span><span class="p">(</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100000</span><span class="p">),</span> <span class="n">m1</span><span class="p">,</span> <span class="n">saveresults!</span><span class="p">);</span>
+<span class="mi">2</span><span class="n">x100000</span> <span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">}:</span>
+ <span class="mf">4547.01</span>   <span class="mf">2302.38</span>   <span class="mf">2513.48</span>   <span class="mf">2832.77</span>  <span class="mf">2051.86</span>   <span class="n">…</span>  <span class="mf">2721.9</span>    <span class="mf">3735.86</span>  <span class="mf">1617.55</span>  <span class="mf">2624.33</span>   <span class="mf">1473.15</span>
+  <span class="mf">204.834</span>   <span class="mf">653.688</span>   <span class="mf">473.595</span>  <span class="mf">1685.59</span>   <span class="mf">367.881</span>      <span class="mf">564.686</span>     <span class="mf">0.0</span>   <span class="mf">1324.83</span>   <span class="mf">287.775</span>  <span class="mf">1826.86</span>
+</pre></div>
+
+
+<p><img alt="" src="../figures/bootstrap_8_1.png" /></p>
+<p><img alt="Density of parametric bootstrap estimates of σ₁² from model m1" src="../figures/bootstrap_9_1.png" /></p>
+<p>The distribution of the bootstrap samples of <code>σ²</code> is a bit skewed but not terribly so.  However, the distribution of the bootstrap samples of the estimate of <code>σ₁²</code> is highly skewed and has a spike at zero.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
