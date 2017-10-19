@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Details of the parameter estimation · MixedModels</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="MixedModels logo"/></a><h1>MixedModels</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">MixedModels.jl Documentation</a></li><li><a class="toctext" href="constructors.html">Model constructors</a></li><li class="current"><a class="toctext" href="optimization.html">Details of the parameter estimation</a><ul class="internal"><li><a class="toctext" href="#The-probability-model-1">The probability model</a></li><li><a class="toctext" href="#Linear-Mixed-Effects-Models-1">Linear Mixed-Effects Models</a></li><li><a class="toctext" href="#Internal-structure-of-\\Lambda_\\theta-and-\\bf-Z-1">Internal structure of <span>$\Lambda_\theta$</span> and <span>$\bf Z$</span></a></li></ul></li><li><a class="toctext" href="bootstrap.html">Parametric bootstrap for linear mixed-effects models</a></li><li><a class="toctext" href="SimpleLMM.html">A Simple, Linear, Mixed-effects Model</a></li><li><a class="toctext" href="MultipleTerms.html">Models With Multiple Random-effects Terms</a></li><li><a class="toctext" href="nAGQ.html">Parameter estimation in GLMMs</a></li><li><a class="toctext" href="SingularCovariance.html">Singular covariance estimates in random regression models</a></li><li><a class="toctext" href="SubjectItem.html">-</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="optimization.html">Details of the parameter estimation</a></li></ul><a class="edit-page" href="https://github.com/dmbates/MixedModels.jl/blob/master/docs/src/optimization.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Details of the parameter estimation</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Details-of-the-parameter-estimation-1" href="#Details-of-the-parameter-estimation-1">Details of the parameter estimation</a></h1><h2><a class="nav-anchor" id="The-probability-model-1" href="#The-probability-model-1">The probability model</a></h2><p>Maximum likelihood estimates are based on the probability model for the observed responses. In the probability model the distribution of the responses is expressed as a function of one or more <em>parameters</em>.</p><p>For a continuous distribution the probability density is a function of the responses, given the parameters. The <em>likelihood</em> function is the same expression as the probability density but regarding the observed values as fixed and the parameters as varying.</p><p>In general a mixed-effects model incorporates two random variables: <span>$\mathcal{B}$</span>, the <span>$q$</span>-dimensional vector of random effects, and <span>$\mathcal{Y}$</span>, the <span>$n$</span>-dimensional response vector. The value, <span>$\bf y$</span>, of <span>$\mathcal{Y}$</span> is observed; the value, <span>$\bf b$</span>, of <span>$\mathcal{B}$</span> is not.</p><h2><a class="nav-anchor" id="Linear-Mixed-Effects-Models-1" href="#Linear-Mixed-Effects-Models-1">Linear Mixed-Effects Models</a></h2><p>In a linear mixed model the unconditional distribution of <span>$\mathcal{B}$</span> and the conditional distribution, <span>$(\mathcal{Y} | \mathcal{B}=\bf{b})$</span>, are both multivariate Gaussian distributions, \begin{equation} \begin{aligned}   (\mathcal{Y} | \mathcal{B}=\bf{b}) &amp;\sim\mathcal{N}(\bf{ X\beta + Z b},\sigma^2\bf{I})\\
+  \mathcal{B}&amp;\sim\mathcal{N}(\bf{0},\Sigma_\theta) . \end{aligned} \end{equation}</p><p>The <em>conditional mean</em> of <span>$\mathcal Y$</span>, given <span>$\mathcal B=\bf b$</span>, is the <em>linear predictor</em>, <span>$\bf X\bf\beta+\bf Z\bf b$</span>, which depends on the <span>$p$</span>-dimensional <em>fixed-effects parameter</em>, <span>$\bf \beta$</span>, and on <span>$\bf b$</span>. The <em>model matrices</em>, <span>$\bf X$</span> and <span>$\bf Z$</span>, of dimension <span>$n\times p$</span> and <span>$n\times q$</span>, respectively, are determined from the formula for the model and the values of covariates.  Although the matrix <span>$\bf Z$</span> can be large (i.e. both <span>$n$</span> and <span>$q$</span> can be large), it is sparse (i.e. most of the elements in the matrix are zero).</p><p>The <em>relative covariance factor</em>, <span>$\Lambda_\theta$</span>, is a <span>$q\times q$</span> lower-triangular matrix, depending on the <em>variance-component parameter</em>, <span>$\bf\theta$</span>, and generating the symmetric <span>$q\times q$</span> variance-covariance matrix, <span>$\Sigma_\theta$</span>, as \begin{equation}   \Sigma_\theta=\sigma^2\Lambda_\theta\Lambda_\theta&#39; \end{equation}</p><p>The <em>spherical random effects</em>, <span>$\mathcal{U}\sim\mathcal{N}({\bf 0},\sigma^2{\bf I}_q)$</span>, determine <span>$\mathcal B$</span> according to \begin{equation}   \mathcal{B}=\Lambda_\theta\mathcal{U}. \end{equation}</p><p>The <em>penalized residual sum of squares</em> (PRSS), \begin{equation}   r^2(\theta,\beta,{\bf u})=\|{\bf y} -{\bf X}\beta -{\bf Z}\Lambda_\theta{\bf u}\|^2+\|{\bf u}\|^2, \end{equation} is the sum of the residual sum of squares, measuring fidelity of the model to the data, and a penalty on the size of <span>$\bf u$</span>, measuring the complexity of the model. Minimizing <span>$r^2$</span> with respect to <span>$\bf u$</span>, \begin{equation}   r^2_{\beta,\theta} =\min_{\bf u}\left(\|{\bf y} -{\bf X}{\beta} -{\bf Z}\Lambda_\theta{\bf u}\|^2+\|{\bf u}\|^2\right) \end{equation} is a direct (i.e. non-iterative) computation. The particular method used to solve this generates a <em>blocked Choleksy factor</em>, <span>${\bf L}_\theta$</span>, which is an lower triangular <span>$q\times q$</span> matrix satisfying \begin{equation}   {\bf L}_\theta{\bf L}_\theta&#39;=\Lambda_\theta&#39;{\bf Z}&#39;{\bf Z}\Lambda_\theta+{\bf I}_q . \end{equation} where <span>${\bf I}_q$</span> is the <span>$q\times q$</span> <em>identity matrix</em>.</p><p>Negative twice the log-likelihood of the parameters, given the data, <span>$\bf y$</span>, is \begin{equation} d({\bf\theta},{\bf\beta},\sigma|{\bf y}) =n\log(2\pi\sigma^2)+\log(|{\bf L}_\theta|^2)+\frac{r^2_{\beta,\theta}}{\sigma^2}. \end{equation} where <span>$|{\bf L}_\theta|$</span> denotes the <em>determinant</em> of <span>${\bf L}_\theta$</span>. Because <span>${\bf L}_\theta$</span> is triangular, its determinant is the product of its diagonal elements.</p><p>Negative twice the log-likelihood is called the <em>objective</em>. It is the value to be minimized by the parameter estimates. It is, up to an additive factor, the <em>deviance</em> of the parameters. Unfortunately, it is not clear what the additive factor should be in the case of linear mixed models. In many applications, however, it is not the deviance of the model that is of interest as much the change in the deviance between two fitted models. When calculating the change in the deviance the additive factor will cancel out so the change in the deviance when comparing models is the same as the change in this objective.</p><p>Because the conditional mean, <span>$\bf\mu_{\mathcal Y|\mathcal B=\bf b}=\bf X\bf\beta+\bf Z\Lambda_\theta\bf u$</span>, is a linear function of both <span>$\bf\beta$</span> and <span>$\bf u$</span>, minimization of the PRSS with respect to both <span>$\bf\beta$</span> and <span>$\bf u$</span> to produce \begin{equation} r^2_\theta =\min_{{\bf\beta},{\bf u}}\left(\|{\bf y} -{\bf X}{\bf\beta} -{\bf Z}\Lambda_\theta{\bf u}\|^2+\|{\bf u}\|^2\right) \end{equation} is also a direct calculation. The values of <span>$\bf u$</span> and <span>$\bf\beta$</span> that provide this minimum are called, respectively, the <em>conditional mode</em>, <span>$\tilde{\bf u}_\theta$</span>, of the spherical random effects and the conditional estimate, <span>$\widehat{\bf\beta}_\theta$</span>, of the fixed effects. At the conditional estimate of the fixed effects the objective is \begin{equation} d({\bf\theta},\widehat{\beta}_\theta,\sigma|{\bf y}) =n\log(2\pi\sigma^2)+\log(|{\bf L}_\theta|^2)+\frac{r^2_\theta}{\sigma^2}. \end{equation}</p><p>Minimizing this expression with respect to <span>$\sigma^2$</span> produces the conditional estimate \begin{equation} \widehat{\sigma^2}_\theta=\frac{r^2_\theta}{n} \end{equation} which provides the <em>profiled log-likelihood</em> on the deviance scale as \begin{equation} \tilde{d}(\theta|{\bf y})=d(\theta,\widehat{\beta}_\theta,\widehat{\sigma}_\theta|{\bf y}) =\log(|{\bf L}_\theta|^2)+n\left[1+\log\left(\frac{2\pi r^2_\theta}{n}\right)\right], \end{equation} a function of <span>$\bf\theta$</span> alone.</p><p>The MLE of <span>$\bf\theta$</span>, written <span>$\widehat{\bf\theta}$</span>, is the value that minimizes this profiled objective. We determine this value by numerical optimization. In the process of evaluating <span>$\tilde{d}(\widehat{\theta}|{\bf y})$</span> we determine <span>$\widehat{\beta}=\widehat{\beta}_{\widehat\theta}$</span>, <span>$\tilde{\bf u}_{\widehat{\theta}}$</span> and <span>$r^2_{\widehat{\theta}}$</span>, from which we can evaluate <span>$\widehat{\sigma}=\sqrt{r^2_{\widehat{\theta}}/n}$</span>.</p><p>The elements of the conditional mode of <span>$\mathcal B$</span>, evaluated at the parameter estimates, \begin{equation} \tilde{\bf b}_{\widehat{\theta}}= \Lambda_{\widehat{\theta}}\tilde{\bf u}_{\widehat{\theta}} \end{equation} are sometimes called the <em>best linear unbiased predictors</em> or BLUPs of the random effects. Although BLUPs an appealing acronym, I don’t find the term particularly instructive (what is a “linear unbiased predictor” and in what sense are these the “best”?) and prefer the term “conditional modes”, because these are the values of <span>$\bf b$</span> that maximize the density of the conditional distribution <span>$\mathcal{B} | \mathcal{Y} = {\bf y}$</span>. For a linear mixed model, where all the conditional and unconditional distributions are Gaussian, these values are also the <em>conditional means</em>.</p><h2><a class="nav-anchor" id="Internal-structure-of-\\Lambda_\\theta-and-\\bf-Z-1" href="#Internal-structure-of-\\Lambda_\\theta-and-\\bf-Z-1">Internal structure of <span>$\Lambda_\theta$</span> and <span>$\bf Z$</span></a></h2><p>In the types of <code>LinearMixedModel</code> available through the <code>MixedModels</code> package, groups of random effects and the corresponding columns of the model matrix, <span>$\bf Z$</span>, are associated with <em>random-effects terms</em> in the model formula.</p><p>For the simple example</p><pre><code class="language-julia">julia&gt; fm1 = fit!(lmm(@formula(Y ~ 1 + (1|G)), dat[:Dyestuff]))
+Linear mixed model fit by maximum likelihood
+ Formula: Y ~ 1 + (1 | G)
+   logLik   -2 logLik     AIC        BIC    
+ -163.66353  327.32706  333.32706  337.53065
+
+Variance components:
+              Column    Variance  Std.Dev. 
+ G        (Intercept)  1388.3332 37.260344
+ Residual              2451.2500 49.510100
+ Number of obs: 30; levels of grouping factors: 6
+
+  Fixed-effects parameters:
+             Estimate Std.Error z value P(&gt;|z|)
+(Intercept)    1527.5   17.6946  86.326  &lt;1e-99
+
+</code></pre><p>the only random effects term in the formula is <code>(1|G)</code>, a simple, scalar random-effects term.</p><pre><code class="language-julia">julia&gt; t1 = fm1.trms[1]
+MixedModels.ScalarFactorReTerm{Float64,String,UInt8}(Union{Nulls.Null, String}[&quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;C&quot;, &quot;C&quot;, &quot;C&quot;, &quot;C&quot;, &quot;C&quot;, &quot;D&quot;, &quot;D&quot;, &quot;D&quot;, &quot;D&quot;, &quot;D&quot;, &quot;E&quot;, &quot;E&quot;, &quot;E&quot;, &quot;E&quot;, &quot;E&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;, &quot;F&quot;], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], :G, String[&quot;(Intercept)&quot;], 0.7525806571450242)
+</code></pre><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="MixedModels.ScalarFactorReTerm" href="#MixedModels.ScalarFactorReTerm"><code>MixedModels.ScalarFactorReTerm</code></a> — <span class="docstring-category">Type</span>.</div><div><pre><code class="language-none">ScalarFactorReTerm</code></pre><p>Scalar random-effects term from a grouping factor</p><p><strong>Members</strong></p><ul><li><p><code>f</code>: the grouping factor as a <code>PooledDataArray</code> (soon to switch to CategoricalArray)</p></li><li><p><code>z</code>: the raw random-effects model matrix as a vector.</p></li><li><p><code>wtz</code>: a weighted copy of <code>z</code></p></li><li><p><code>fnm</code>: the name of the grouping factor as a <code>Symbol</code></p></li><li><p><code>cnm</code>: the column name as a string</p></li><li><p><code>Λ</code>: the relative covariance multiplier</p></li></ul></div><a class="source-link" target="_blank" href="https://github.com/dmbates/MixedModels.jl/blob/de0bb77de0ab7693e2233df25530e3b167943096/src/modelterms.jl#L71-L83">source</a></section><p>This <code>ScalarFactorReTerm</code> contributes a block of columns to the model matrix <span>$\bf Z$</span> and a diagonal block to <span>$\Lambda_\theta$</span>.</p><pre><code class="language-julia">julia&gt; getθ(t1)
+1-element Array{Float64,1}:
+ 0.752581
+
+julia&gt; getΛ(t1)
+0.7525806571450242
+
+julia&gt; full(t1)
+30×6 Array{Float64,2}:
+ 1.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  1.0  0.0  0.0  0.0  0.0
+ 0.0  1.0  0.0  0.0  0.0  0.0
+ 0.0  1.0  0.0  0.0  0.0  0.0
+ 0.0  1.0  0.0  0.0  0.0  0.0
+ 0.0  1.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  1.0  0.0  0.0
+ 0.0  0.0  0.0  1.0  0.0  0.0
+ 0.0  0.0  0.0  1.0  0.0  0.0
+ 0.0  0.0  0.0  1.0  0.0  0.0
+ 0.0  0.0  0.0  1.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  1.0
+ 0.0  0.0  0.0  0.0  0.0  1.0
+ 0.0  0.0  0.0  0.0  0.0  1.0
+ 0.0  0.0  0.0  0.0  0.0  1.0
+ 0.0  0.0  0.0  0.0  0.0  1.0
+</code></pre><p>Because there is only one random-effects term in the model, the matrix <span>$\bf Z$</span> is the indicators matrix shown as the result of <code>full(t1)</code>, but stored in a special sparse format. Furthermore, there is only one block in <span>$\Lambda_\theta$</span>. For a <code>ScalarFactorReTerm</code> this block is a multiple of the identity, in this case <span>$0.75258\cdot{\bf I}_6$</span>.</p><p>For a vector-valued random-effects term, as in</p><pre><code class="language-julia">julia&gt; fm2 = fit!(lmm(@formula(Y ~ 1 + U + (1+U|G)), dat[:sleepstudy]))
+Linear mixed model fit by maximum likelihood
+ Formula: Y ~ 1 + U + ((1 + U) | G)
+   logLik   -2 logLik     AIC        BIC    
+ -875.96967 1751.93934 1763.93934 1783.09709
+
+Variance components:
+              Column    Variance  Std.Dev.   Corr.
+ G        (Intercept)  565.51067 23.780468
+          U             32.68212  5.716828  0.08
+ Residual              654.94145 25.591824
+ Number of obs: 180; levels of grouping factors: 18
+
+  Fixed-effects parameters:
+             Estimate Std.Error z value P(&gt;|z|)
+(Intercept)   251.405   6.63226 37.9064  &lt;1e-99
+U             10.4673   1.50224 6.96781  &lt;1e-11
+
+
+julia&gt; t21 = fm2.trms[1]
+MixedModels.VectorFactorReTerm{Float64,String,UInt8}(Union{Nulls.Null, String}[&quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;], [1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0; 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0], [1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0; 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0], :G, String[&quot;(Intercept)&quot;, &quot;U&quot;], [2], [0.929221 0.0; 0.0181684 0.222645], [1, 2, 4])
+</code></pre><p>the random-effects term <code>(1+U|G)</code> generates a</p><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="MixedModels.VectorFactorReTerm" href="#MixedModels.VectorFactorReTerm"><code>MixedModels.VectorFactorReTerm</code></a> — <span class="docstring-category">Type</span>.</div><div><pre><code class="language-none">VectorFactorReTerm</code></pre><p>Random-effects term from a grouping factor, model matrix and block pattern</p><p><strong>Members</strong></p><ul><li><p><code>f</code>: the grouping factor as an <code>PooledDataVector</code></p></li><li><p><code>z</code>: the transposed raw random-effects model matrix</p></li><li><p><code>wtz</code>: a weighted copy of <code>z</code></p></li><li><p><code>fnm</code>: the name of the grouping factor as a <code>Symbol</code></p></li><li><p><code>cnms</code>: a <code>Vector</code> of column names (row names after transposition) of <code>z</code></p></li><li><p><code>blks</code>: a <code>Vector{Int}</code> of block sizes within <code>Λ</code></p></li><li><p><code>Λ</code>: the relative covariance factor</p></li><li><p><code>inds</code>: linear indices of θ elements in the relative covariance factor</p></li></ul></div><a class="source-link" target="_blank" href="https://github.com/dmbates/MixedModels.jl/blob/de0bb77de0ab7693e2233df25530e3b167943096/src/modelterms.jl#L134-L148">source</a></section><p>The model matrix <span>$\bf Z$</span> for this model is</p><pre><code class="language-julia">julia&gt; full(t21)
+180×36 Array{Float64,2}:
+ 1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  2.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  3.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  4.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  5.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  6.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  7.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  8.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  9.0
+</code></pre><p>and <span>$\Lambda_\theta$</span> is a <span>$36\times36$</span> block diagonal matrix with <span>$18$</span> diagonal blocks, all of the form</p><pre><code class="language-julia">julia&gt; getΛ(t21)
+2×2 Array{Float64,2}:
+ 0.929221   0.0     
+ 0.0181684  0.222645
+</code></pre><p>The <span>$\theta$</span> vector is</p><pre><code class="language-julia">julia&gt; getθ(t21)
+3-element Array{Float64,1}:
+ 0.929221 
+ 0.0181684
+ 0.222645 
+</code></pre><p>Random-effects terms in the model formula that have the same grouping factor are amagamated into a single <code>VectorFactorReTerm</code> object.</p><pre><code class="language-julia">julia&gt; fm3 = fit!(lmm(@formula(Y ~ 1 + U + (1|G) + (0+U|G)), dat[:sleepstudy]))
+Linear mixed model fit by maximum likelihood
+ Formula: Y ~ 1 + U + (1 | G) + ((0 + U) | G)
+   logLik   -2 logLik     AIC        BIC    
+ -876.00163 1752.00326 1762.00326 1777.96804
+
+Variance components:
+              Column    Variance  Std.Dev.   Corr.
+ G        (Intercept)  584.258974 24.17145
+          U             33.632805  5.79938  0.00
+ Residual              653.115782 25.55613
+ Number of obs: 180; levels of grouping factors: 18
+
+  Fixed-effects parameters:
+             Estimate Std.Error z value P(&gt;|z|)
+(Intercept)   251.405   6.70771   37.48  &lt;1e-99
+U             10.4673   1.51931 6.88951  &lt;1e-11
+
+
+julia&gt; t31 = fm3.trms[1]
+MixedModels.VectorFactorReTerm{Float64,String,UInt8}(Union{Nulls.Null, String}[&quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;308&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;309&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;310&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;330&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;331&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;332&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;333&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;334&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;335&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;337&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;349&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;350&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;351&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;352&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;369&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;370&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;371&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;, &quot;372&quot;], [1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0; 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0], [1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0; 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0], :G, String[&quot;(Intercept)&quot;, &quot;U&quot;], [1, 1], [0.945818 0.0; 0.0 0.226927], [1, 4])
+</code></pre><p>For this model the matrix <span>$\bf Z$</span> is the same as that of model <code>fm2</code> but the diagonal blocks of <span>$\Lambda_\theta$</span> are themselves diagonal.</p><pre><code class="language-julia">julia&gt; getΛ(t31)
+2×2 Array{Float64,2}:
+ 0.945818  0.0     
+ 0.0       0.226927
+
+julia&gt; getθ(t31)
+2-element Array{Float64,1}:
+ 0.945818
+ 0.226927
+</code></pre><p>Random-effects terms with distinct grouping factors generate distinct elements of the <code>trms</code> member of the <code>LinearMixedModel</code> object. Multiple <code>AbstractFactorReTerm</code> (i.e. either a <code>ScalarFactorReTerm</code> or a <code>VectorFactorReTerm</code>) objects are sorted by decreasing numbers of random effects.</p><pre><code class="language-julia">julia&gt; fm4 = fit!(lmm(@formula(Y ~ 1 + (1|H) + (1|G)), dat[:Penicillin]))
+Linear mixed model fit by maximum likelihood
+ Formula: Y ~ 1 + (1 | H) + (1 | G)
+   logLik   -2 logLik     AIC        BIC    
+ -166.09417  332.18835  340.18835  352.06760
+
+Variance components:
+              Column    Variance  Std.Dev. 
+ G        (Intercept)  0.7149795 0.8455646
+ H        (Intercept)  3.1351924 1.7706474
+ Residual              0.3024264 0.5499331
+ Number of obs: 144; levels of grouping factors: 24, 6
+
+  Fixed-effects parameters:
+             Estimate Std.Error z value P(&gt;|z|)
+(Intercept)   22.9722  0.744596 30.8519  &lt;1e-99
+
+
+julia&gt; t41 = fm4.trms[1]
+MixedModels.ScalarFactorReTerm{Float64,String,UInt8}(Union{Nulls.Null, String}[&quot;a&quot;, &quot;a&quot;, &quot;a&quot;, &quot;a&quot;, &quot;a&quot;, &quot;a&quot;, &quot;b&quot;, &quot;b&quot;, &quot;b&quot;, &quot;b&quot;, &quot;b&quot;, &quot;b&quot;, &quot;c&quot;, &quot;c&quot;, &quot;c&quot;, &quot;c&quot;, &quot;c&quot;, &quot;c&quot;, &quot;d&quot;, &quot;d&quot;, &quot;d&quot;, &quot;d&quot;, &quot;d&quot;, &quot;d&quot;, &quot;e&quot;, &quot;e&quot;, &quot;e&quot;, &quot;e&quot;, &quot;e&quot;, &quot;e&quot;, &quot;f&quot;, &quot;f&quot;, &quot;f&quot;, &quot;f&quot;, &quot;f&quot;, &quot;f&quot;, &quot;g&quot;, &quot;g&quot;, &quot;g&quot;, &quot;g&quot;, &quot;g&quot;, &quot;g&quot;, &quot;h&quot;, &quot;h&quot;, &quot;h&quot;, &quot;h&quot;, &quot;h&quot;, &quot;h&quot;, &quot;i&quot;, &quot;i&quot;, &quot;i&quot;, &quot;i&quot;, &quot;i&quot;, &quot;i&quot;, &quot;j&quot;, &quot;j&quot;, &quot;j&quot;, &quot;j&quot;, &quot;j&quot;, &quot;j&quot;, &quot;k&quot;, &quot;k&quot;, &quot;k&quot;, &quot;k&quot;, &quot;k&quot;, &quot;k&quot;, &quot;l&quot;, &quot;l&quot;, &quot;l&quot;, &quot;l&quot;, &quot;l&quot;, &quot;l&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;n&quot;, &quot;n&quot;, &quot;n&quot;, &quot;n&quot;, &quot;n&quot;, &quot;n&quot;, &quot;o&quot;, &quot;o&quot;, &quot;o&quot;, &quot;o&quot;, &quot;o&quot;, &quot;o&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;q&quot;, &quot;q&quot;, &quot;q&quot;, &quot;q&quot;, &quot;q&quot;, &quot;q&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;, &quot;s&quot;, &quot;s&quot;, &quot;s&quot;, &quot;s&quot;, &quot;s&quot;, &quot;s&quot;, &quot;t&quot;, &quot;t&quot;, &quot;t&quot;, &quot;t&quot;, &quot;t&quot;, &quot;t&quot;, &quot;u&quot;, &quot;u&quot;, &quot;u&quot;, &quot;u&quot;, &quot;u&quot;, &quot;u&quot;, &quot;v&quot;, &quot;v&quot;, &quot;v&quot;, &quot;v&quot;, &quot;v&quot;, &quot;v&quot;, &quot;w&quot;, &quot;w&quot;, &quot;w&quot;, &quot;w&quot;, &quot;w&quot;, &quot;w&quot;, &quot;x&quot;, &quot;x&quot;, &quot;x&quot;, &quot;x&quot;, &quot;x&quot;, &quot;x&quot;], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], :G, String[&quot;(Intercept)&quot;], 1.5375772637253458)
+
+julia&gt; t42 = fm4.trms[2]
+MixedModels.ScalarFactorReTerm{Float64,String,UInt8}(Union{Nulls.Null, String}[&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], :H, String[&quot;(Intercept)&quot;], 3.219750701314265)
+</code></pre><p>Note that the first <code>ScalarFactorReTerm</code> in <code>fm4.trms</code> corresponds to grouping factor <code>G</code> even though the term <code>(1|G)</code> occurs in the formula after <code>(1|H)</code>.</p><h3><a class="nav-anchor" id="Progress-of-the-optimization-1" href="#Progress-of-the-optimization-1">Progress of the optimization</a></h3><p>An optional <code>Bool</code> argument of <code>true</code> in the call to <code>fit!</code> of a <code>LinearMixedModel</code> causes printing of the objective and the <span>$\theta$</span> parameter at each evaluation during the optimization.</p><pre><code class="language-julia">julia&gt; fit!(lmm(@formula(Y ~ 1 + (1|G)), dat[:Dyestuff]), true);
+f_1: 327.76702 [1.0]
+f_2: 331.03619 [1.75]
+f_3: 330.64583 [0.25]
+f_4: 327.69511 [0.97619]
+f_5: 327.56631 [0.928569]
+f_6: 327.3826 [0.833327]
+f_7: 327.35315 [0.807188]
+f_8: 327.34663 [0.799688]
+f_9: 327.341 [0.792188]
+f_10: 327.33253 [0.777188]
+f_11: 327.32733 [0.747188]
+f_12: 327.32862 [0.739688]
+f_13: 327.32706 [0.752777]
+f_14: 327.32707 [0.753527]
+f_15: 327.32706 [0.752584]
+f_16: 327.32706 [0.752509]
+f_17: 327.32706 [0.752591]
+f_18: 327.32706 [0.752581]
+
+julia&gt; fit!(lmm(@formula(Y ~ 1 + U + (1+U|G)), dat[:sleepstudy]), true);
+f_1: 1784.6423 [1.0, 0.0, 1.0]
+f_2: 1790.12564 [1.75, 0.0, 1.0]
+f_3: 1798.99962 [1.0, 1.0, 1.0]
+f_4: 1803.8532 [1.0, 0.0, 1.75]
+f_5: 1800.61398 [0.25, 0.0, 1.0]
+f_6: 1798.60463 [1.0, -1.0, 1.0]
+f_7: 1752.26074 [1.0, 0.0, 0.25]
+f_8: 1797.58769 [1.18326, -0.00866189, 0.0]
+f_9: 1754.95411 [1.075, 0.0, 0.325]
+f_10: 1753.69568 [0.816632, 0.0111673, 0.288238]
+f_11: 1754.817 [1.0, -0.0707107, 0.196967]
+f_12: 1753.10673 [0.943683, 0.0638354, 0.262696]
+f_13: 1752.93938 [0.980142, -0.0266568, 0.274743]
+f_14: 1752.25688 [0.984343, -0.0132347, 0.247191]
+f_15: 1752.05745 [0.97314, 0.00253785, 0.23791]
+f_16: 1752.02239 [0.954526, 0.00386421, 0.235892]
+f_17: 1752.02273 [0.935929, 0.0013318, 0.234445]
+f_18: 1751.97169 [0.954965, 0.00790664, 0.229046]
+f_19: 1751.9526 [0.953313, 0.0166274, 0.225768]
+f_20: 1751.94852 [0.946929, 0.0130761, 0.222871]
+f_21: 1751.98718 [0.933418, 0.00613767, 0.218951]
+f_22: 1751.98321 [0.951544, 0.005789, 0.220618]
+f_23: 1751.95197 [0.952809, 0.0190332, 0.224178]
+f_24: 1751.94628 [0.946322, 0.0153739, 0.225088]
+f_25: 1751.9467 [0.947124, 0.0148894, 0.224892]
+f_26: 1751.94757 [0.946497, 0.0154643, 0.225814]
+f_27: 1751.94531 [0.946086, 0.0157934, 0.224449]
+f_28: 1751.94418 [0.945304, 0.0166902, 0.223361]
+f_29: 1751.94353 [0.944072, 0.0172106, 0.222716]
+f_30: 1751.94244 [0.941271, 0.0163099, 0.222523]
+f_31: 1751.94217 [0.939, 0.015899, 0.222132]
+f_32: 1751.94237 [0.938979, 0.016548, 0.221562]
+f_33: 1751.94228 [0.938863, 0.0152466, 0.222683]
+f_34: 1751.9422 [0.938269, 0.015733, 0.222024]
+f_35: 1751.94131 [0.938839, 0.0166373, 0.222611]
+f_36: 1751.94093 [0.938397, 0.0173965, 0.222817]
+f_37: 1751.94057 [0.937006, 0.0180445, 0.222534]
+f_38: 1751.94018 [0.934109, 0.0187354, 0.22195]
+f_39: 1751.94008 [0.932642, 0.0189242, 0.221726]
+f_40: 1751.94027 [0.931357, 0.0190082, 0.221309]
+f_41: 1751.9415 [0.932821, 0.0206454, 0.221367]
+f_42: 1751.93949 [0.931867, 0.0179574, 0.222564]
+f_43: 1751.93939 [0.929167, 0.0177824, 0.222534]
+f_44: 1751.9394 [0.929659, 0.0177721, 0.222508]
+f_45: 1751.93943 [0.929193, 0.0187806, 0.22257]
+f_46: 1751.93935 [0.928986, 0.0182366, 0.222484]
+f_47: 1751.93949 [0.928697, 0.0182937, 0.223175]
+f_48: 1751.93936 [0.928243, 0.0182695, 0.222584]
+f_49: 1751.93934 [0.929113, 0.0181791, 0.222624]
+f_50: 1751.93934 [0.929191, 0.0181658, 0.222643]
+f_51: 1751.93935 [0.929254, 0.0182093, 0.222621]
+f_52: 1751.93935 [0.929189, 0.0181298, 0.222573]
+f_53: 1751.93934 [0.929254, 0.0181676, 0.22265]
+f_54: 1751.93934 [0.929215, 0.0181717, 0.222647]
+f_55: 1751.93934 [0.929208, 0.0181715, 0.222646]
+f_56: 1751.93934 [0.929209, 0.018173, 0.222652]
+f_57: 1751.93934 [0.929221, 0.0181684, 0.222645]
+</code></pre><p>A shorter summary of the optimization process is always available as an</p><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="MixedModels.OptSummary" href="#MixedModels.OptSummary"><code>MixedModels.OptSummary</code></a> — <span class="docstring-category">Type</span>.</div><div><pre><code class="language-none">OptSummary</code></pre><p>Summary of an <code>NLopt</code> optimization</p><p><strong>Members</strong></p><ul><li><p><code>initial</code>: a copy of the initial parameter values in the optimization</p></li><li><p><code>lowerbd</code>: lower bounds on the parameter values</p></li><li><p><code>ftol_rel</code>: as in NLopt</p></li><li><p><code>ftol_abs</code>: as in NLopt</p></li><li><p><code>xtol_rel</code>: as in NLopt</p></li><li><p><code>xtol_abs</code>: as in NLopt</p></li><li><p><code>initial_step</code>: as in NLopt</p></li><li><p><code>maxfeval</code>: as in NLopt</p></li><li><p><code>final</code>: a copy of the final parameter values from the optimization</p></li><li><p><code>fmin</code>: the final value of the objective</p></li><li><p><code>feval</code>: the number of function evaluations</p></li><li><p><code>optimizer</code>: the name of the optimizer used, as a <code>Symbol</code></p></li><li><p><code>returnvalue</code>: the return value, as a <code>Symbol</code></p></li></ul></div><a class="source-link" target="_blank" href="https://github.com/dmbates/MixedModels.jl/blob/de0bb77de0ab7693e2233df25530e3b167943096/src/types.jl#L69-L88">source</a></section><p>object, which is the <code>optsum</code> member of the <code>LinearMixedModel</code>.</p><pre><code class="language-julia">julia&gt; fm2.optsum
+Initial parameter vector: [1.0, 0.0, 1.0]
+Initial objective value:  1784.6422961924509
+
+Optimizer (from NLopt):   LN_BOBYQA
+Lower bounds:             [0.0, -Inf, 0.0]
+ftol_rel:                 1.0e-12
+ftol_abs:                 1.0e-8
+xtol_rel:                 0.0
+xtol_abs:                 [1.0e-10, 1.0e-10, 1.0e-10]
+initial_step:             [0.75, 1.0, 0.75]
+maxfeval:                 -1
+
+Function evaluations:     57
+Final parameter vector:   [0.929221, 0.0181684, 0.222645]
+Final objective value:    1751.939344464693
+Return code:              FTOL_REACHED
+
+</code></pre><footer><hr/><a class="previous" href="constructors.html"><span class="direction">Previous</span><span class="title">Model constructors</span></a><a class="next" href="bootstrap.html"><span class="direction">Next</span><span class="title">Parametric bootstrap for linear mixed-effects models</span></a></footer></article></body></html>
