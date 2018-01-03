@@ -189,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Model constructors",
     "title": "MixedModels.fixef",
     "category": "Function",
-    "text": "fixef(m::MixedModel)\n\nReturns the fixed-effects parameter vector estimate.\n\n\n\n"
+    "text": "fixef(m::MixedModel, permuted=true)\n\nReturn the fixed-effects parameter vector estimate of m.\n\nIf permuted is true the vector elements are permuted according to m.trms[end - 1].piv and truncated to the rank of that term.\n\n\n\n"
 },
 
 {
