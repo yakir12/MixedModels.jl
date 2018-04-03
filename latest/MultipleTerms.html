@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Models With Multiple Random-effects Terms · MixedModels</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="MixedModels logo"/></a><h1>MixedModels</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">MixedModels.jl Documentation</a></li><li><a class="toctext" href="constructors.html">Model constructors</a></li><li><a class="toctext" href="optimization.html">Details of the parameter estimation</a></li><li><a class="toctext" href="bootstrap.html">Parametric bootstrap for linear mixed-effects models</a></li><li><a class="toctext" href="SimpleLMM.html">A Simple, Linear, Mixed-effects Model</a></li><li class="current"><a class="toctext" href="MultipleTerms.html">Models With Multiple Random-effects Terms</a><ul class="internal"><li><a class="toctext" href="#A-Model-With-Crossed-Random-Effects-1">A Model With Crossed Random Effects</a></li><li><a class="toctext" href="#A-Model-With-Nested-Random-Effects-1">A Model With Nested Random Effects</a></li><li><a class="toctext" href="#A-Model-With-Partially-Crossed-Random-Effects-1">A Model With Partially Crossed Random Effects</a></li><li><a class="toctext" href="#Chapter-Summary-1">Chapter Summary</a></li><li><a class="toctext" href="#Exercises-1">Exercises</a></li></ul></li><li><a class="toctext" href="SingularCovariance.html">Singular covariance estimates in random regression models</a></li><li><a class="toctext" href="SubjectItem.html">-</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="MultipleTerms.html">Models With Multiple Random-effects Terms</a></li></ul><a class="edit-page" href="https://github.com/dmbates/MixedModels.jl/blob/master/docs/src/MultipleTerms.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Models With Multiple Random-effects Terms</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Models-With-Multiple-Random-effects-Terms-1" href="#Models-With-Multiple-Random-effects-Terms-1">Models With Multiple Random-effects Terms</a></h1><p>The mixed models considered in the previous chapter had only one random-effects term, which was a simple, scalar random-effects term, and a single fixed-effects coefficient. Although such models can be useful, it is with the facility to use multiple random-effects terms and to use random-effects terms beyond a simple, scalar term that we can begin to realize the flexibility and versatility of mixed models.</p><p>In this chapter we consider models with multiple simple, scalar random-effects terms, showing examples where the grouping factors for these terms are in completely crossed or nested or partially crossed configurations. For ease of description we will refer to the random effects as being crossed or nested although, strictly speaking, the distinction between nested and non-nested refers to the grouping factors, not the random effects.</p><pre><code class="language-julia">julia&gt; using DataFrames, Distributions, FreqTables, Gadfly, MixedModels, RData
 
-julia&gt; using Gadfly.Geom: density, histogram, point
+julia&gt; using Gadfly.Geom: density, histogram, line, point
 
 julia&gt; using Gadfly.Guide: xlabel, ylabel
 
@@ -42,7 +42,7 @@ C           │ 1  1  1  1  1  1  1  1  1  1     1  1  1  1  1  1  1  1  1  1
 D           │ 1  1  1  1  1  1  1  1  1  1     1  1  1  1  1  1  1  1  1  1
 E           │ 1  1  1  1  1  1  1  1  1  1     1  1  1  1  1  1  1  1  1  1
 F           │ 1  1  1  1  1  1  1  1  1  1  …  1  1  1  1  1  1  1  1  1  1
-</code></pre><p>Like the <code>Dyestuff</code> data, the factors in the <code>Penicillin</code> data are balanced. That is, there are exactly the same number of observations on each plate and for each sample and, furthermore, there is the same number of observations on each combination of levels. In this case there is exactly one observation for each combination of <code>G</code>, the plate, and <code>H</code>, the sample. We would describe the configuration of these two factors as an unreplicated, completely balanced, crossed design.</p><p>In general, balance is a desirable but precarious property of a data set. We may be able to impose balance in a designed experiment but we typically cannot expect that data from an observation study will be balanced. Also, as anyone who analyzes real data soon finds out, expecting that balance in the design of an experiment will produce a balanced data set is contrary to “Murphy’s Law”. That’s why statisticians allow for missing data. Even when we apply each of the six samples to each of the 24 plates, something could go wrong for one of the samples on one of the plates, leaving us without a measurement for that combination of levels and thus an unbalanced data set.</p><h3><a class="nav-anchor" id="A-Model-For-the-Penicillin-Data-1" href="#A-Model-For-the-Penicillin-Data-1">A Model For the <code>Penicillin</code> Data</a></h3><p>A model incorporating random effects for both the plate and the sample is straightforward to specify — we include simple, scalar random effects terms for both these factors.</p><pre><code class="language-julia">julia&gt; penm = fit!(lmm(@formula(Y ~ 1 + (1|G) + (1|H)), dat[:Penicillin]))
+</code></pre><p>Like the <code>Dyestuff</code> data, the factors in the <code>Penicillin</code> data are balanced. That is, there are exactly the same number of observations on each plate and for each sample and, furthermore, there is the same number of observations on each combination of levels. In this case there is exactly one observation for each combination of <code>G</code>, the plate, and <code>H</code>, the sample. We would describe the configuration of these two factors as an unreplicated, completely balanced, crossed design.</p><p>In general, balance is a desirable but precarious property of a data set. We may be able to impose balance in a designed experiment but we typically cannot expect that data from an observation study will be balanced. Also, as anyone who analyzes real data soon finds out, expecting that balance in the design of an experiment will produce a balanced data set is contrary to “Murphy’s Law”. That’s why statisticians allow for missing data. Even when we apply each of the six samples to each of the 24 plates, something could go wrong for one of the samples on one of the plates, leaving us without a measurement for that combination of levels and thus an unbalanced data set.</p><h3><a class="nav-anchor" id="A-Model-For-the-Penicillin-Data-1" href="#A-Model-For-the-Penicillin-Data-1">A Model For the <code>Penicillin</code> Data</a></h3><p>A model incorporating random effects for both the plate and the sample is straightforward to specify — we include simple, scalar random effects terms for both these factors.</p><pre><code class="language-julia">julia&gt; penm = fit(LinearMixedModel, @formula(Y ~ 1 + (1|G) + (1|H)), dat[:Penicillin])
 Linear mixed model fit by maximum likelihood
  Formula: Y ~ 1 + (1 | G) + (1 | H)
    logLik   -2 logLik     AIC        BIC    
@@ -51,7 +51,7 @@ Linear mixed model fit by maximum likelihood
 Variance components:
               Column    Variance  Std.Dev. 
  G        (Intercept)  0.7149795 0.8455646
- H        (Intercept)  3.1351920 1.7706474
+ H        (Intercept)  3.1351924 1.7706474
  Residual              0.3024264 0.5499331
  Number of obs: 144; levels of grouping factors: 24, 6
 
@@ -62,7 +62,7 @@ Variance components:
 </code></pre><p>This model display indicates that the sample-to-sample variability has the greatest contribution, then plate-to-plate variability and finally the “residual” variability that cannot be attributed to either the sample or the plate. These conclusions are consistent with what we see in the data plot (Fig. [fig:Penicillindot]).</p><p>The prediction intervals on the random effects (Fig. [fig:fm03ranef])</p><p>confirm that the conditional distribution of the random effects for has much less variability than does the conditional distribution of the random effects for , in the sense that the dots in the bottom panel have less variability than those in the top panel. (Note the different horizontal axes for the two panels.) However, the conditional distribution of the random effect for a particular , say sample F, has less variability than the conditional distribution of the random effect for a particular plate, say plate m. That is, the lines in the bottom panel are wider than the lines in the top panel, even after taking the different axis scales into account. This is because the conditional distribution of the random effect for a particular sample depends on 24 responses while the conditional distribution of the random effect for a particular plate depends on only 6 responses.</p><p>In chapter [chap:ExamLMM] we saw that a model with a single, simple, scalar random-effects term generated a random-effects model matrix, <span>$\mathbf Z$</span>, that is the matrix of indicators of the levels of the grouping factor. When we have multiple, simple, scalar random-effects terms, as in model , each term generates a matrix of indicator columns and these sets of indicators are concatenated to form the model matrix <span>$\mathbf Z$</span>. The transpose of this matrix, shown in Fig. [fig:fm03Ztimage], contains rows of indicators for each factor.</p><p>The relative covariance factor, <span>$\Lambda_\theta$</span>, (Fig. [fig:fm03LambdaLimage], left panel) is no longer a multiple of the identity. It is now block diagonal, with two blocks, one of size 24 and one of size 6, each of which is a multiple of the identity. The diagonal elements of the two blocks are <span>$\theta_1$</span> and <span>$\theta_2$</span>, respectively. The numeric values of these parameters can be obtained as</p><pre><code class="language-julia">julia&gt; show(getθ(penm))
 [1.53758, 3.21975]</code></pre><p>or as the <code>Final parameter vector</code> in the <code>opsum</code> field of <code>penm</code></p><pre><code class="language-julia">julia&gt; penm.optsum
 Initial parameter vector: [1.0, 1.0]
-Initial objective value:  364.6267798165791
+Initial objective value:  364.6267798165433
 
 Optimizer (from NLopt):   LN_BOBYQA
 Lower bounds:             [0.0, 0.0]
@@ -75,14 +75,14 @@ maxfeval:                 -1
 
 Function evaluations:     44
 Final parameter vector:   [1.53758, 3.21975]
-Final objective value:    332.1883486722809
+Final objective value:    332.1883486722732
 Return code:              FTOL_REACHED
 
 </code></pre><p>The first parameter is the relative standard deviation of the random effects for <code>plate</code>, which has the value <code>0.8455646/0.5499331 = 1.53758</code> at convergence, and the second is the relative standard deviation of the random effects for <code>sample</code> (<code>1.7706475/0.5499331 = 3.21975</code>).</p><p>Because <span>$\Lambda_\theta$</span> is diagonal, the pattern of non-zeros in <span>$\Lambda_\theta&#39;\mathbf Z&#39;\mathbf Z\Lambda_\theta+\mathbf I$</span> will be the same as that in <span>$\mathbf Z&#39;\mathbf Z$</span>, shown in the middle panel of Fig. [fig:fm03LambdaLimage]. The sparse Cholesky factor, <span>$\mathbf L$</span>, shown in the right panel, is lower triangular and has non-zero elements in the lower right hand corner in positions where <span>$\mathbf Z&#39;\mathbf Z$</span> has systematic zeros. We say that “fill-in” has occurred when forming the sparse Cholesky decomposition. In this case there is a relatively minor amount of fill but in other cases there can be a substantial amount of fill and we shall take precautions so as to reduce this, because fill-in adds to the computational effort in determining the MLEs or the REML estimates.</p><p>A bootstrap simulation of the model</p><pre><code class="language-julia">julia&gt; @time penmbstp = bootstrap(10000, penm);
-  9.382835 seconds (19.42 M allocations: 867.233 MiB, 4.28% gc time)
+ 13.519157 seconds (17.92 M allocations: 816.905 MiB, 5.69% gc time)
 </code></pre><p>provides the density plots</p><p><img src="assets/MultipleTerms_8_1.svg" alt/></p><p><img src="assets/MultipleTerms_9_1.svg" alt/></p><p><img src="assets/MultipleTerms_10_1.svg" alt/></p><pre><code class="language-julia">julia&gt; plot(penmbstp, x = :σ₂, density, xlabel(&quot;σ₂&quot;))
 Plot(...)
-</code></pre><p><img src="assets/MultipleTerms_11_1.svg" alt/></p><p>A profile zeta plot (Fig. [fig:fm03prplot]) for the parameters in model</p><p><img src="figure/fm03prplot-1" alt="Profile zeta plot of the parameters in model ."/></p><p>[fig:fm03prplot]</p><p>leads to conclusions similar to those from Fig. [fig:fm1prof] for model in the previous chapter. The fixed-effect parameter, <span>$\beta_1$</span>, for the constant term has symmetric intervals and is over-dispersed relative to the normal distribution. The logarithm of <span>$\sigma$</span> has a good normal approximation but the standard deviations of the random effects, <span>$\sigma_1$</span> and <span>$\sigma_2$</span>, are skewed. The skewness for <span>$\sigma_2$</span> is worse than that for <span>$\sigma_1$</span>, because the estimate of <span>$\sigma_2$</span> is less precise than that of <span>$\sigma_1$</span>, in both absolute and relative senses. For an absolute comparison we compare the widths of the confidence intervals for these parameters.</p><pre><code class="language-none">                     2.5 %     97.5 %
+</code></pre><p>A profile zeta plot (Fig. [fig:fm03prplot]) for the parameters in model</p><p><img src="figure/fm03prplot-1" alt="Profile zeta plot of the parameters in model ."/></p><p>[fig:fm03prplot]</p><p>leads to conclusions similar to those from Fig. [fig:fm1prof] for model in the previous chapter. The fixed-effect parameter, <span>$\beta_1$</span>, for the constant term has symmetric intervals and is over-dispersed relative to the normal distribution. The logarithm of <span>$\sigma$</span> has a good normal approximation but the standard deviations of the random effects, <span>$\sigma_1$</span> and <span>$\sigma_2$</span>, are skewed. The skewness for <span>$\sigma_2$</span> is worse than that for <span>$\sigma_1$</span>, because the estimate of <span>$\sigma_2$</span> is less precise than that of <span>$\sigma_1$</span>, in both absolute and relative senses. For an absolute comparison we compare the widths of the confidence intervals for these parameters.</p><pre><code class="language-none">                     2.5 %     97.5 %
     .sig01       0.6335658  1.1821040
     .sig02       1.0957893  3.5562919
     .sigma       0.4858454  0.6294535
@@ -121,8 +121,8 @@ Linear mixed model fit by maximum likelihood
 
 Variance components:
               Column    Variance  Std.Dev.  
- G        (Intercept)  8.4336166 2.90406897
- H        (Intercept)  1.1991794 1.09507048
+ G        (Intercept)  8.4336167 2.90406898
+ H        (Intercept)  1.1991793 1.09507045
  Residual              0.6780021 0.82340884
  Number of obs: 60; levels of grouping factors: 30, 10
 
@@ -133,18 +133,18 @@ Variance components:
 </code></pre><p>Not only is the model specification similar for nested and crossed factors, the internal calculations are performed according to the methods described in Sect. [sec:definitions] for each model type. Comparing the patterns in the matrices <span>$\Lambda$</span>, <span>$\mathbf Z&#39;\mathbf Z$</span> and <span>$\mathbf L$</span> for this model (Fig. [fig:fm04LambdaLimage]) to those in Fig. [fig:fm03LambdaLimage] shows that models with nested factors produce simple repeated structures along the diagonal of the sparse Cholesky factor, <span>$\mathbf L$</span>. This type of structure has the desirable property that there is no “fill-in” during calculation of the Cholesky factor. In other words, the number of non-zeros in <span>$\mathbf L$</span> is the same as the number of non-zeros in the lower triangle of the matrix being factored, <span>$\Lambda&#39;\mathbf Z&#39;\mathbf Z\Lambda+\mathbf I$</span> (which, because <span>$\Lambda$</span> is diagonal, has the same structure as <span>$\mathbf Z&#39;\mathbf Z$</span>).</p><h3><a class="nav-anchor" id="Assessing-Parameter-Estimates-in-Model-pstsm-1" href="#Assessing-Parameter-Estimates-in-Model-pstsm-1">Assessing Parameter Estimates in Model <code>pstsm</code></a></h3><p>The parameter estimates are: <span>$\widehat{\sigma_1}=$</span>2.904, the standard deviation of the random effects for <code>sample</code>; <span>$\widehat{\sigma_2}=$</span>1.095, the standard deviation of the random effects for <code>batch</code>; <span>$\widehat{\sigma}=$</span>0.823, the standard deviation of the residual noise term; and <span>$\widehat{\beta_0}=$</span>60.053, the overall mean response, which is labeled <code>(Intercept)</code> in these models.</p><p>The estimated standard deviation for <code>sample</code> is nearly three times as large as that for <code>batch</code>, which confirms what we saw in Fig. [fig:Pastesplot]. Indeed our conclusion from Fig. [fig:Pastesplot] was that there may not be a significant batch-to-batch variability in addition to the sample-to-sample variability.</p><p>Plots of the prediction intervals of the random effects (Fig. [fig:fm04ranef])</p><p><img src="figure/fm04ranef-1" alt="95% prediction intervals on the random effects for model fit to the data."/></p><p>[fig:fm04ranef]</p><p>confirm this impression in that all the prediction intervals for the random effects for contain zero. Furthermore, a bootstrap sample</p><pre><code class="language-julia">julia&gt; srand(4321234);
 
 julia&gt; @time pstsbstp = bootstrap(10000, pstsm);
-  7.142706 seconds (14.38 M allocations: 680.942 MiB, 2.69% gc time)
+  9.520945 seconds (13.85 M allocations: 659.111 MiB, 2.39% gc time)
 </code></pre><p><img src="assets/MultipleTerms_16_1.svg" alt/></p><pre><code class="language-julia">julia&gt; plot(pstsbstp, x = :σ, density, xlabel(&quot;σ&quot;))
 Plot(...)
-</code></pre><p><img src="assets/MultipleTerms_17_1.svg" alt/></p><pre><code class="language-julia">julia&gt; plot(x = pstsbstp[:σ₁], Geom.density(), Guide.xlabel(&quot;σ₁&quot;))
+</code></pre><pre><code class="language-julia">julia&gt; plot(x = pstsbstp[:σ₁], Geom.density(), Guide.xlabel(&quot;σ₁&quot;))
 Plot(...)
-</code></pre><p><img src="assets/MultipleTerms_18_1.svg" alt/></p><pre><code class="language-julia">julia&gt; plot(x = pstsbstp[:σ₂], Geom.density(), Guide.xlabel(&quot;σ₂&quot;))
+</code></pre><pre><code class="language-julia">julia&gt; plot(x = pstsbstp[:σ₂], Geom.density(), Guide.xlabel(&quot;σ₂&quot;))
 Plot(...)
-</code></pre><p><img src="assets/MultipleTerms_19_1.svg" alt/></p><p>and a normal probability plot of</p><pre><code class="language-julia">julia&gt; plot(x = zquantiles, y = quantile(pstsbstp[:σ₂], ppt250), Geom.line,
+</code></pre><p>and a normal probability plot of</p><pre><code class="language-julia">julia&gt; plot(x = zquantiles, y = quantile(pstsbstp[:σ₂], ppt250), Geom.line,
     Guide.xlabel(&quot;Standard Normal Quantiles&quot;), Guide.ylabel(&quot;σ₂&quot;))
 Plot(...)
-</code></pre><p><img src="assets/MultipleTerms_20_1.svg" alt/></p><pre><code class="language-julia">julia&gt; count(x -&gt; x &lt; 1.0e-5, pstsbstp[:σ₂])
-3665
+</code></pre><pre><code class="language-julia">julia&gt; count(x -&gt; x &lt; 1.0e-5, pstsbstp[:σ₂])
+3661
 </code></pre><p>Over 1/3 of the bootstrap samples of <span>$\sigma_2$</span> are zero.  Even a 50% confidence interval on this parameter will extend to zero.  One way to calculate confidence intervals based on a bootstrap sample is sort the sample and consider all the contiguous intervals that contain, say, 95% of the samples then choose the smallest of these.  For example,</p><pre><code class="language-julia">julia&gt; hpdinterval(pstsbstp[:σ₂])
 2-element Array{Float64,1}:
  0.0    
@@ -156,9 +156,9 @@ Linear mixed model fit by maximum likelihood
  -124.20085  248.40170  254.40170  260.68473
 
 Variance components:
-              Column    Variance  Std.Dev. 
- G        (Intercept)  9.6328208 3.1036786
- Residual              0.6780001 0.8234076
+              Column    Variance   Std.Dev. 
+ G        (Intercept)  9.63282135 3.1036787
+ Residual              0.67800006 0.8234076
  Number of obs: 60; levels of grouping factors: 30
 
   Fixed-effects parameters:
@@ -172,7 +172,7 @@ Variance components:
 │ 1   │ 3  │ 248.402  │ NaN      │ NaN      │
 │ 2   │ 4  │ 247.994  │ 0.407234 │ 0.523377 │
 </code></pre><p>which provides a p-value of <span>$0.5234$</span>. Because typical standards for “small” p-values are 5% or 1%, a p-value over 50% would not be considered significant at any reasonable level.</p><p>We do need to be cautious in quoting this p-value, however, because the parameter value being tested, <span>$\sigma_2=0$</span>, is on the boundary of set of possible values, <span>$\sigma_2\ge 0$</span>, for this parameter. The argument for using a <span>$\chi^2_1$</span> distribution to calculate a p-value for the change in the deviance does not apply when the parameter value being tested is on the boundary. As shown in Pinheiro and Bates (2000), the p-value from the <span>$\chi^2_1$</span> distribution will be “conservative” in the sense that it is larger than a simulation-based p-value would be. In the worst-case scenario the <span>$\chi^2$</span>-based p-value will be twice as large as it should be but, even if that were true, an effective p-value of 26% would not cause us to reject <span>$H_0$</span> in favor of <span>$H_a$</span>.</p><h3><a class="nav-anchor" id="Assessing-the-Reduced-Model,-pstsm1-1" href="#Assessing-the-Reduced-Model,-pstsm1-1">Assessing the Reduced Model, <code>pstsm1</code></a></h3><p>A bootstrap sample</p><pre><code class="language-julia">julia&gt; @time psts1bstp = bootstrap(10000, pstsm1);
-  2.722676 seconds (6.08 M allocations: 285.117 MiB, 3.40% gc time)
+  3.810911 seconds (6.16 M allocations: 275.817 MiB, 2.57% gc time)
 </code></pre><p>provides empirical density plots</p><p><img src="assets/MultipleTerms_26_1.svg" alt/></p><p>and</p><p><img src="assets/MultipleTerms_27_1.svg" alt/></p><p>The profile zeta plots for the remaining parameters in model (Fig. [fig:fm04aprplot])</p><p><img src="figure/fm04aprplot-1" alt="Profile zeta plots for the parameters in model ."/></p><p>[fig:fm04aprplot]</p><p>are similar to the corresponding panels in Fig. [fig:fm04prplot], as confirmed by the numerical values of the confidence intervals.</p><pre><code class="language-none">                     2.5 %    97.5 %
     .sig01       2.1579337  4.053589
     .sig02       0.0000000  2.946591
@@ -186,24 +186,24 @@ Symbol[:G, :H, :studage, :lectage, :A, :I, :Y]</code></pre><p>have somewhat cryp
 &#39; ╲ Dim1 │     1      2      3      4      5
 ─────────┼──────────────────────────────────
 1        │ 10186  12951  17609  16921  15754
-</code></pre><p>it is sufficiently diffuse to warrant treating it as if it were a continuous response.</p><p>At this point we will fit models that have random effects for student, instructor, and department (or the combination) to these data. In the next chapter we will fit models incorporating fixed-effects for instructor and department to these data.</p><pre><code class="language-julia">julia&gt; @time instm = fit!(lmm(@formula(Y ~ 1 + A + (1|G) + (1|H) + (1|I)), dat[:InstEval]))
-  2.632963 seconds (28.59 k allocations: 188.855 MiB, 1.23% gc time)
+</code></pre><p>it is sufficiently diffuse to warrant treating it as if it were a continuous response.</p><p>At this point we will fit models that have random effects for student, instructor, and department (or the combination) to these data. In the next chapter we will fit models incorporating fixed-effects for instructor and department to these data.</p><pre><code class="language-julia">julia&gt; @time instm = fit(LinearMixedModel, @formula(Y ~ 1 + A + (1|G) + (1|H) + (1|I)), dat[:InstEval])
+  2.183438 seconds (342.65 k allocations: 200.968 MiB, 1.08% gc time)
 Linear mixed model fit by maximum likelihood
  Formula: Y ~ 1 + A + (1 | G) + (1 | H) + (1 | I)
      logLik        -2 logLik          AIC             BIC       
  -1.18860884×10⁵  2.37721769×10⁵  2.37733769×10⁵  2.37788993×10⁵
 
 Variance components:
-              Column     Variance    Std.Dev.  
- G        (Intercept)  0.1059726808 0.32553445
- H        (Intercept)  0.2652041233 0.51497973
- I        (Intercept)  0.0061677025 0.07853472
- Residual              1.3864886097 1.17749251
+              Column     Variance     Std.Dev.  
+ G        (Intercept)  0.1059725479 0.325534250
+ H        (Intercept)  0.2652049098 0.514980495
+ I        (Intercept)  0.0061678670 0.078535769
+ Residual              1.3864885942 1.177492503
  Number of obs: 73421; levels of grouping factors: 2972, 1128, 14
 
   Fixed-effects parameters:
                Estimate Std.Error  z value P(&gt;|z|)
-(Intercept)     3.28258 0.0284114  115.537  &lt;1e-99
+(Intercept)     3.28258 0.0284116  115.537  &lt;1e-99
 A: 1         -0.0925886 0.0133832 -6.91828  &lt;1e-11
 
 </code></pre><p>(Fitting this complex model to a moderately large data set takes a few seconds on a modest desktop computer. Although this is more time than required for earlier model fits, it is a remarkably short time for fitting a model of this size and complexity. In some ways it is remarkable that such a model can be fit at all on such a computer.)</p><p>All three estimated standard deviations of the random effects are less than <span>$\widehat{\sigma}$</span>, with <span>$\widehat{\sigma}_3$</span>, the estimated standard deviation of the random effects for <code>dept</code>, less than one-tenth of <span>$\widehat{\sigma}$</span>.</p><p>It is not surprising that zero is within all of the prediction intervals on the random effects for this factor (Fig. [fig:fm05ranef]). In fact, zero is close to the middle of all these prediction intervals. However, the p-value for the LRT of <span>$H_0:\sigma_3=0$</span> versus <span>$H_a:\sigma_3&gt;0$</span></p><p><code>         </code></p><pre><code class="language-none">Data: InstEval
