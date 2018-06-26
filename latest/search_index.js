@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "MixedModels.jl Documentation",
     "title": "MixedModels.jl Documentation",
     "category": "section",
-    "text": "CurrentModule = MixedModelsMixedModels.jl is a Julia package providing capabilities for fitting and examining linear and generalized linear mixed-effect models. It is similar in scope to the lme4 package for R.Pages = [\n        \"index.md\",\n        \"constructors.md\",\n        \"optimization.md\",\n        \"bootstrap.md\",\n        \"SimpleLMM.md\",\n        \"MultipleTerms.md\",\n        \"SingularCovariance.md\",\n        \"SubjectItem.md\"]\nDepth = 2"
+    "text": "CurrentModule = MixedModelsMixedModels.jl is a Julia package providing capabilities for fitting and examining linear and generalized linear mixed-effect models. It is similar in scope to the lme4 package for R.Pages = [\n        \"constructors.md\",\n        \"optimization.md\",\n        \"bootstrap.md\",\n        \"SimpleLMM.md\",\n        \"MultipleTerms.md\",\n        \"SingularCovariance.md\",\n        \"SubjectItem.md\",\n        \"GaussHermite.md\"]\nDepth = 2"
 },
 
 {
