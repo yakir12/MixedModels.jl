@@ -317,7 +317,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Details of the parameter estimation",
     "title": "MixedModels.ScalarFactorReTerm",
     "category": "type",
-    "text": "ScalarFactorReTerm\n\nScalar random-effects term from a grouping factor\n\nMembers\n\nf: the grouping factor as a CategoricalVector\nz: the raw random-effects model matrix as a vector.\nwtz: a weighted copy of z\nfnm: the name of the grouping factor as a Symbol\ncnm: the column name as a string\nΛ: the relative covariance multiplier\n\n\n\n"
+    "text": "ScalarFactorReTerm\n\nScalar random-effects term from a grouping factor\n\nMembers\n\nrefs: indices into levels for the grouping factor\nlevels: possible values of the grouping factor\nz: the raw random-effects model matrix as a vector.\nwtz: a weighted copy of z\nfnm: the name of the grouping factor as a Symbol\ncnm: the column name as a string\nΛ: the relative covariance multiplier\n\n\n\n"
 },
 
 {
@@ -325,7 +325,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Details of the parameter estimation",
     "title": "MixedModels.VectorFactorReTerm",
     "category": "type",
-    "text": "VectorFactorReTerm\n\nRandom-effects term from a grouping factor, model matrix and block pattern\n\nMembers\n\nf: the grouping factor as an CategoricalVector\nz: the transposed raw random-effects model matrix\nwtz: a weighted copy of z\nwtzv: a view of wtz as a Vector{SVector{S,T}}\nfnm: the name of the grouping factor as a Symbol\ncnms: a Vector of column names (row names after transposition) of z\nblks: a Vector{Int} of block sizes within Λ\nΛ: the relative covariance factor\ninds: linear indices of θ elements in the relative covariance factor\n\n\n\n"
+    "text": "VectorFactorReTerm\n\nRandom-effects term from a grouping factor, model matrix and block pattern\n\nMembers\n\nrefs: indices into levels for the grouping factor\nlevels: possible values of the grouping factor\nz: the transposed raw random-effects model matrix\nwtz: a weighted copy of z\nwtzv: a view of wtz as a Vector{SVector{S,T}}\nfnm: the name of the grouping factor as a Symbol\ncnms: a Vector of column names (row names after transposition) of z\nblks: a Vector{Int} of block sizes within Λ\nΛ: the relative covariance factor\ninds: linear indices of θ elements in the relative covariance factor\n\n\n\n"
 },
 
 {
