@@ -269,7 +269,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Model constructors",
     "title": "MixedModels.condVar",
     "category": "function",
-    "text": "condVar(m::MixedModel)\n\nReturn the conditional variances matrices of the random effects.\n\nThe random effects are returned by ranef as a vector of length k, where k is the number of random effects terms.  The ith element is a matrix of size vᵢ × ℓᵢ  where vᵢ is the size of the vector-valued random effects for each of the ℓᵢ levels of the grouping factor.  Technically those values are the modes of the conditional distribution of the random effects given the observed data.\n\nThis function returns an array of k three dimensional arrays, where the ith array is of size vᵢ × vᵢ × ℓᵢ.  These are the diagonal blocks from the conditional variance-covariance matrix,\n\ns² Λ(Λ\'Z\'ZΛ + I)⁻¹Λ\'\n\n\n\n\n\n"
+    "text": "condVar(m::MixedModel)\n\nReturn the conditional variances matrices of the random effects.\n\nThe random effects are returned by ranef as a vector of length k, where k is the number of random effects terms.  The ith element is a matrix of size vᵢ × ℓᵢ  where vᵢ is the size of the vector-valued random effects for each of the ℓᵢ levels of the grouping factor.  Technically those values are the modes of the conditional distribution of the random effects given the observed data.\n\nThis function returns an array of k three dimensional arrays, where the ith array is of size vᵢ × vᵢ × ℓᵢ.  These are the diagonal blocks from the conditional variance-covariance matrix,\n\ns² Λ(Λ\'Z\'ZΛ + I)⁻¹Λ\'\n\nFIXME: Change the output type to that of the (1,1) block of lmm(m).L.data\n\n\n\n\n\n"
 },
 
 {
