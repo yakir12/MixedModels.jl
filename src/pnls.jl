@@ -1,24 +1,25 @@
 using LinearAlgebra, Tables
 
 """
-    resgrad!(μ, resid, Jac, df, β)
+    resgrad!(fac, scrv, cov, φ, f)
 
-Update the mean response, `μ`, the residual, `resid` and the transpose of
-the Jacobian, `Jac`, given `df`, an object like a `DataFrame` for which `Tables.rows`
-returns a NamedTuple including names `dose`, `time`, and `conc`.
+Update the Cholesky factorization, `fac`, using the scratch vector, `scrv`, the covariate
+table, `cov`, the parameter vector, `φ`, and the model function, `f`.
 
-Returns the sum of squared residuals.
+The model function, `f`, should take the scratch vector, `scrv`, a row of `cov` and the
+parameter vector `φ` and fill `scrv` with the gradient and residual value.
 """
-function resgrad!(μ, resid, Jac, cov, φ, f)
-    rss = zero(eltype(μ))
+function resgrad!(fac, scrv, cov, φ, f)
+    fill!(fac.factors, 0)
     for (i,r) in enumerate(Tables.rows(cov))
         μi, g = f(r, φ)
-        μ[i] = μi
-        resi = resid[i] = r.conc - μi
-        rss += abs2(resi)
-        Jac[i] = g
+        for j in 1:length(φ)
+            scrv[j] = g[j]
+        end
+        scrv[end] = r.conc - μi
+        lowrankupdate!(fac, scrv)
     end
-    rss
+    fac
 end
 
 function resgradre!(μ, resid, Jac, df, β, b)
@@ -53,11 +54,14 @@ function increment!(δ, resid, Jac)
     sum(abs2, view(resid, 1:n)) / sum(abs2, view(resid, (n+1):m))
 end
 
-function nls!(β::NamedTuple, df, f)
-    n = size(df, 1)
-    Jac = repeat([β], n)
-    μ = zeros(typeof(β[1]), n)
-    resid = similar(μ)
+function nls!(β, df, f)
+    m = size(df, 1)
+    n = length(β)
+    scrv = zeros(typeof(β[1]), n + 1)
+    fac = cholesky!(zeros(typeof(β[1]), (n + 1, n + 1)) + I)
+    resgrad!(fac, scrv, df, β, f)
+    return fac
+#=
     rss = resgrad!(μ, resid, Jac, df, β, f)
     Jacobian = similar(μ, n, length(β))
     sch = Tables.schema(β)
@@ -69,7 +73,6 @@ function nls!(β::NamedTuple, df, f)
     qrJac = qr!(Jacobian)
     rss
 end
-#=
     δ = similar(β)     # parameter increment
     b = copy(β)        # trial parameter value
     n = size(df, 1)
@@ -103,8 +106,9 @@ end
         throw(ErrorException("Maximum number of iterations, $maxiter, exceeded"))
     end
     (lK = b[1], lKa = b[2], lCl = b[3])
-end
 =#
+end
+
 function updateTerms!(m::LinearMixedModel, resid, Jac)
     copyto!(first(m.feterms).x, Jac)
     copyto!(last(m.feterms).x, resid)

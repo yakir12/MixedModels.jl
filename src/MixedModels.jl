@@ -1,6 +1,6 @@
 module MixedModels
 
-using BlockArrays, CategoricalArrays, Tables, Distributions, GLM, 
+using BlockArrays, CategoricalArrays, Tables, Distributions, GLM,
     LinearAlgebra, NLopt, Random, ProgressMeter, Showoff, SparseArrays, StaticArrays,
     Statistics, StatsBase, StatsModels
 
@@ -97,6 +97,7 @@ include("linalg/rankUpdate.jl")
 include("linalg/logdet.jl")
 include("linalg.jl")
 include("simulate.jl")
-include("onecompartment.jl")
+include("pnls.jl")
+include("PKPDmodels.jl")
 
 end # module
