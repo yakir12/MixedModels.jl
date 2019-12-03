@@ -449,7 +449,7 @@ function ranef!(v::Vector, m::LinearMixedModel{T}, β::AbstractArray{T}, uscale:
     (k = length(v)) == length(m.reterms) || throw(DimensionMismatch(""))
     L = m.L
     for j in 1:k
-        mulαβ!(vec(copyto!(v[j], L[Block(BlockArrays.nblocks(L, 2), j)])),
+        mul!(vec(copyto!(v[j], L[Block(BlockArrays.nblocks(L, 2), j)])),
             L[Block(k + 1, j)]', β, -one(T), one(T))
     end
     for i in k: -1 :1
@@ -457,7 +457,7 @@ function ranef!(v::Vector, m::LinearMixedModel{T}, β::AbstractArray{T}, uscale:
         vi = vec(v[i])
         ldiv!(adjoint(isa(Lii, Diagonal) ? Lii : LowerTriangular(Lii)), vi)
         for j in 1:(i - 1)
-            mulαβ!(vec(v[j]), L[Block(i, j)]', vi, -one(T), one(T))
+            mul!(vec(v[j]), L[Block(i, j)]', vi, -one(T), one(T))
         end
     end
     if !uscale
@@ -692,7 +692,7 @@ function updateL!(m::LinearMixedModel{T}) where {T}
         for i in (j + 1):k
             Lij = L[Block(i, j)]
             for jj in 1:(j - 1)
-                mulαβ!(Lij, L[Block(i, jj)], L[Block(j, jj)]', -one(T), one(T))
+                mul!(Lij, L[Block(i, jj)], L[Block(j, jj)]', -one(T), one(T))
             end
             rdiv!(Lij, LjjT')
         end

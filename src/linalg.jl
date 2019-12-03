@@ -1,3 +1,4 @@
+#=
 function mulαβ!(C::Matrix{T}, A::Matrix{T}, adjB::Adjoint{T,<:Matrix{T}},
         α=true, β=false) where {T<:BlasFloat}
     BLAS.gemm!('N', 'C', T(α), A, adjB.parent, T(β), C)
@@ -35,12 +36,12 @@ function mulαβ!(C::Matrix{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,<:SparseM
     end
     C
 end
-
-mulαβ!(C::Matrix{T}, A::BlockedSparse{T}, adjB::Adjoint{T,<:BlockedSparse{T}}, α=true,
-       β=false) where {T} = mulαβ!(C, A.cscmat, adjB.parent.cscmat', α, β)
-
-function mulαβ!(C::Matrix{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,Matrix{T}},
-        α=true, β=false) where {T}
+=#
+LinearAlgebra.mul!(C::Matrix{T}, A::BlockedSparse{T}, adjB::Adjoint{T,<:BlockedSparse{T}},
+     α::Number, β::Number) where {T} = mul!(C, A.cscmat, adjB.parent.cscmat', α, β)
+#=
+function mul!(C::Matrix{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,Matrix{T}},
+        α::Number, β::Number) where {T}
     B = adjB.parent
     A.n == size(B, 2) || throw(DimensionMismatch())
     A.m == size(C, 1) || throw(DimensionMismatch())
@@ -60,10 +61,10 @@ function mulαβ!(C::Matrix{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,Matrix{T}
     end
     C
 end
-
-mulαβ!(C::Matrix{T}, A::BlockedSparse{T}, adjB::Adjoint{T,<:Matrix{T}}, α=true, β=false) where {T} =
-    mulαβ!(C, A.cscmat, adjB, α, β)
-
+=#
+LinearAlgebra.mul!(C::Matrix{T}, A::BlockedSparse{T}, adjB::Adjoint{T,<:Matrix{T}},
+    α::Number, β::Number) where {T} = mul!(C, A.cscmat, adjB, α, β)
+#=
 function mulαβ!(C::SparseMatrixCSC{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,<:SparseMatrixCSC{T}},
         α=true, β=false) where {T}
     B = adjB.parent
@@ -94,10 +95,11 @@ function mulαβ!(C::SparseMatrixCSC{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,
     end
     C
 end
-
-mulαβ!(C::BlockedSparse{T}, A::BlockedSparse{T}, adjB::Adjoint{T,<:BlockedSparse{T}}, α=true, β=false) where {T} =
-    mulαβ!(C.cscmat, A.cscmat, adjB.parent.cscmat', α, β)
-
+=#
+LinearAlgebra.mul!(C::BlockedSparse{T}, A::BlockedSparse{T},
+    adjB::Adjoint{T,<:BlockedSparse{T}}, α::Number, β::Number) where {T} =
+    mul!(C.cscmat, A.cscmat, adjB.parent.cscmat', α, β)
+#=
 function mulαβ!(C::StridedVecOrMat{T}, A::StridedVecOrMat{T}, adjB::Adjoint{T,<:SparseMatrixCSC{T}},
         α=true, β=false) where T
     B = adjB.parent
@@ -117,18 +119,19 @@ function mulαβ!(C::StridedVecOrMat{T}, A::StridedVecOrMat{T}, adjB::Adjoint{T,
     end
     C
 end
-
-mulαβ!(C::StridedVecOrMat{T}, A::StridedVecOrMat{T}, adjB::Adjoint{T,<:BlockedSparse{T}},
-    α=true, β=false) where {T} = mulαβ!(C, A, adjB.parent.cscmat', α, β)
-
-mulαβ!(C::StridedVector{T}, adjA::Adjoint{T,<:StridedMatrix{T}}, B::StridedVector{T},
-    α=true, β=false) where {T<:BlasFloat} = BLAS.gemv!('C', T(α), adjA.parent, B, T(β), C)
+=#
+LinearAlgebra.mul!(C::StridedVecOrMat{T}, A::StridedVecOrMat{T},
+    adjB::Adjoint{T,<:BlockedSparse{T}}, α::Number, β::Number) where {T} =
+    mul!(C, A, adjB.parent.cscmat', α, β)
+#=
+mul!(C::StridedVector{T}, adjA::Adjoint{T,<:StridedMatrix{T}}, B::StridedVector{T},
+    α::Number, β::Number) where {T<:BlasFloat} = BLAS.gemv!('C', T(α), adjA.parent, B, T(β), C)
 
 mulαβ!(C::StridedVector{T}, adjA::Adjoint{T,<:SparseMatrixCSC{T}}, B::StridedVector{T},
     α=true, β=false) where {T} = mul!(C, adjA, B, T(α), T(β))
-
-mulαβ!(C::StridedVector{T}, adjA::Adjoint{T,<:BlockedSparse{T}}, B::StridedVector{T},
-    α=true, β=false) where {T} = mulαβ!(C, adjA.parent.cscmat', B, α, β)
+=#
+LinearAlgebra.mul!(C::StridedVector{T}, adjA::Adjoint{T,<:BlockedSparse{T}},
+    B::StridedVector{T}, α::Number, β::Number) where {T} = mul!(C, adjA.parent.cscmat', B, α, β)
 
 function LinearAlgebra.ldiv!(adjA::Adjoint{T,<:LowerTriangular{T,UniformBlockDiagonal{T}}},
         B::StridedVector{T}) where {T}
