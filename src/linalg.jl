@@ -1,24 +1,11 @@
-#=
-function mulαβ!(C::Matrix{T}, A::Matrix{T}, adjB::Adjoint{T,<:Matrix{T}},
-        α=true, β=false) where {T<:BlasFloat}
-    BLAS.gemm!('N', 'C', T(α), A, adjB.parent, T(β), C)
-end
-
-function mulαβ!(C::Matrix{T}, A::Matrix{T}, adjB::Diagonal{T,S},
-        α=true, β=false) where {T<:BlasFloat,S}
-    # adapted from LinearAlgebra/src/diagonal.jl in 1.3
-    C .= (A .* permutedims(adjB.diag)) .* α .+ C .* β
-end
-
-function mulαβ!(C::SparseMatrixCSC{T}, A::SparseMatrixCSC{T}, adjB::Diagonal{T,S},
-        α=true, β=false) where {T<:BlasFloat,S}
-    # adapted from LinearAlgebra/src/diagonal.jl in 1.3
-    C .= (A .* permutedims(adjB.diag)) .* α .+ C .* β
-end
-
-function mulαβ!(C::Matrix{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,<:SparseMatrixCSC{T}},
-        α=true, β=false) where T <: Number
-    B = adjB.parent
+function LinearAlgebra.mul!(
+    C::Matrix{T},
+    blkA::BlockedSparse{T},
+    adjB::Adjoint{T,<:BlockedSparse{T}},
+    α::Number,
+    β::Number) where {T}
+    A = blkA.cscmat
+    B = adjB.parent.cscmat
     B.m == size(C, 2) && A.m == size(C, 1) && A.n == B.n || throw(DimensionMismatch(""))
     anz = nonzeros(A)
     arv = rowvals(A)
@@ -36,100 +23,18 @@ function mulαβ!(C::Matrix{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,<:SparseM
     end
     C
 end
-=#
-LinearAlgebra.mul!(C::Matrix{T}, A::BlockedSparse{T}, adjB::Adjoint{T,<:BlockedSparse{T}},
-     α::Number, β::Number) where {T} = mul!(C, A.cscmat, adjB.parent.cscmat', α, β)
-#=
-function mul!(C::Matrix{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,Matrix{T}},
-        α::Number, β::Number) where {T}
-    B = adjB.parent
-    A.n == size(B, 2) || throw(DimensionMismatch())
-    A.m == size(C, 1) || throw(DimensionMismatch())
-    size(B, 1) == size(C, 2) || throw(DimensionMismatch())
-    nzv = A.nzval
-    rv = A.rowval
-    if β != 1
-        β != 0 ? rmul!(C, β) : fill!(C, zero(eltype(C)))
-    end
-    for k = 1:size(C, 2)
-        @inbounds for col = 1:A.n
-            αxj = α*B[k,col]
-            for j = nzrange(A, col)
-                C[rv[j], k] += nzv[j]*αxj
-            end
-        end
-    end
-    C
-end
-=#
+
 LinearAlgebra.mul!(C::Matrix{T}, A::BlockedSparse{T}, adjB::Adjoint{T,<:Matrix{T}},
     α::Number, β::Number) where {T} = mul!(C, A.cscmat, adjB, α, β)
-#=
-function mulαβ!(C::SparseMatrixCSC{T}, A::SparseMatrixCSC{T}, adjB::Adjoint{T,<:SparseMatrixCSC{T}},
-        α=true, β=false) where {T}
-    B = adjB.parent
-    C.m == A.m && C.n == B.m && A.n == B.n || throw(DimensionMismatch(""))
-    Anz = nonzeros(A)
-    Bnz = nonzeros(B)
-    Cnz = nonzeros(C)
-    isone(β) || rmul!(Cnz, β)
-    Arv = rowvals(A)
-    Brv = rowvals(B)
-    Crv = rowvals(C)
-    for j in 1:A.n
-        for K in nzrange(B, j)
-            k = Brv[K]
-            alphabjk = α * Bnz[K]
-            colkfirstr = Int(C.colptr[k])
-            colklastr = Int(C.colptr[k + 1] - 1)
-            for I in nzrange(A, j)
-                i = Arv[I]
-                searchk = searchsortedfirst(Crv, i, colkfirstr, colklastr, Base.Order.Forward)
-                if searchk <= colklastr && Crv[searchk] == i
-                    Cnz[searchk] += alphabjk * Anz[I]
-                else
-                    throw(ArgumentError("C does not have the nonzero pattern of A*B'"))
-                end
-            end
-        end
-    end
-    C
-end
-=#
+
 LinearAlgebra.mul!(C::BlockedSparse{T}, A::BlockedSparse{T},
     adjB::Adjoint{T,<:BlockedSparse{T}}, α::Number, β::Number) where {T} =
     mul!(C.cscmat, A.cscmat, adjB.parent.cscmat', α, β)
-#=
-function mulαβ!(C::StridedVecOrMat{T}, A::StridedVecOrMat{T}, adjB::Adjoint{T,<:SparseMatrixCSC{T}},
-        α=true, β=false) where T
-    B = adjB.parent
-    m, n = size(A)
-    p, q = size(B)
-    r, s = size(C)
-    r == m && s == p && n == q || throw(DimensionMismatch(""))
-    isone(β) || rmul!(C, β)
-    nz = nonzeros(B)
-    rv = rowvals(B)
-    @inbounds for j in 1:q, k in nzrange(B, j)
-        rvk = rv[k]
-        anzk = α * nz[k]
-        for jj in 1:r
-            C[jj, rvk] += A[jj, j] * anzk
-        end
-    end
-    C
-end
-=#
+
 LinearAlgebra.mul!(C::StridedVecOrMat{T}, A::StridedVecOrMat{T},
     adjB::Adjoint{T,<:BlockedSparse{T}}, α::Number, β::Number) where {T} =
     mul!(C, A, adjB.parent.cscmat', α, β)
-#=
-mul!(C::StridedVector{T}, adjA::Adjoint{T,<:StridedMatrix{T}}, B::StridedVector{T},
-    α::Number, β::Number) where {T<:BlasFloat} = BLAS.gemv!('C', T(α), adjA.parent, B, T(β), C)
 
-mulαβ!(C::StridedVector{T}, adjA::Adjoint{T,<:SparseMatrixCSC{T}}, B::StridedVector{T},
-    α=true, β=false) where {T} = mul!(C, adjA, B, T(α), T(β))
-=#
 LinearAlgebra.mul!(C::StridedVector{T}, adjA::Adjoint{T,<:BlockedSparse{T}},
     B::StridedVector{T}, α::Number, β::Number) where {T} = mul!(C, adjA.parent.cscmat', B, α, β)
 
